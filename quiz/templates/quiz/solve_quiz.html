@@ -1,0 +1,30 @@
+{%extends './basetemp.html' %}
+{% block title %}Solve{% endblock %}
+{% block content %}
+  <div class="centered">
+    <div class="centered">
+      <h1>{{quiz.title}}</h1>
+      <h2>{{quiz.description}}</h2>
+      <h3>Created by : {{quiz.created_by}} on {{quiz.created}}</h3>
+    </div>
+    <form action="" method="POST">
+      {% csrf_token %}
+      {%for question in questions%}
+      <fieldset class="centered">
+          <h2 style="color: rgb(73, 203, 255);">{{question.text}}</h2>
+          <ol type="A" class="label-class">
+            {% for choice in choices %} 
+              {% if choice.question == question %}
+                <div class="form-check">
+                  <input type="radio" id="{{choice}}" value="{{choice.id}}" name={{question.id}}>
+                  <label for="{{choice}}">{{choice}}</label>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </ol>
+      </fieldset>
+      {% endfor %}
+      <input class="btn btn-secondary" type="submit" name="Submit" />
+  </div>
+    </form>
+{% endblock %}

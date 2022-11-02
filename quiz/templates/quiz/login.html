@@ -1,0 +1,23 @@
+{%extends './basetemp.html' %}
+{%load crispy_forms_tags %}
+{% block title %}Login{% endblock %}
+{% block content %}
+    <div
+      style="max-width: 500px; margin: auto;"
+      class="shadow-lg p-3 mb-5 bg-black rounded centered"
+    >
+      <h1>Login</h1>
+      <form method="POST">
+        {% csrf_token %} {{ login_form|crispy }}
+        <button class="btn btn-primary" type="submit">Login</button>
+      </form>
+      {% if messages %}
+        {% for message in messages %}
+          <p class="text-center">{{message}}</p>
+        {% endfor %}
+      {% endif %}
+      <p class="text-center">
+        Don't have an account? <a href="/register">Create an account</a>.
+      </p>
+    </div>
+{% endblock %}

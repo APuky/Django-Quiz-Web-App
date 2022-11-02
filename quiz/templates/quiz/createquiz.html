@@ -1,0 +1,47 @@
+{%extends './basetemp.html' %}
+{% load static %}
+{% block title %}Create a Quiz{% endblock %}
+{% block content %}
+    <div class="centered">
+      <p class="label-class">Note: There is a minimum of <b>5</b> questions per quiz, and a maximum of <b>20</b>.</p>
+      {% if messages %}
+        {% for message in messages %}
+          <h2>{{message}}</h2>
+        {% endfor %}
+      {% endif %}
+      <form action="" method="POST">
+        {% csrf_token %} 
+        <div class="form-group">
+          {% for field in quiznewform %}
+            <label class="label-class" for="{{ field.auto_id }}">{{field.label}} *</label>
+            {{field}}
+          {%endfor%}
+          {{quizformset.management_form}}
+        </div>
+          <div id="wrapper">
+            {% if quizformset.errors %}
+              <div>
+                <p>{{ quizformset.error }}</p>
+              </div>
+            {% endif %}
+            {% for form in quizformset %} 
+              <div class ="form">
+                <div class="form-group">
+                  {% for field in form %}
+                    <label class="label-class" for="{{ field.auto_id }}">{{field.label}}</label>
+                    {{field}}
+                  {%endfor%}
+                  
+                </div>
+              </div>
+            {% endfor %}
+            <div class="centered" style="text-align: center">
+            <button type="button" class="btn btn-secondary" id="addQuestion" onclick="showExtra()">Add another question</button>
+            </div>
+            <div class="centered" style="text-align: center">
+            <input type="submit" class="btn btn-secondary" name="Submit" />
+            </div>
+          </div>
+      </form>
+    </div>
+{% endblock %}

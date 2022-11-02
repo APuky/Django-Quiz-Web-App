@@ -1,0 +1,113 @@
+/* Navbar container */
+.navbar1 {
+  overflow: hidden;
+  background-color: #333;
+  font-family: Arial;
+}
+
+/* Links inside the navbar */
+.navbar1 a {
+  float: left;
+  font-size: 16px;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* The dropdown container */
+.dropdown1 {
+  float: left;
+  overflow: hidden;
+}
+
+/* Dropdown button */
+.dropdown1 .dropbtn {
+  font-size: 16px;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 14px 16px;
+  background-color: inherit;
+  font-family: inherit; /* Important for vertical align on mobile phones */
+  margin: 0; /* Important for vertical align on mobile phones */
+}
+
+/* Add a red background color to navbar links on hover */
+.navbar1 a:hover, .dropdown1:hover .dropbtn {
+  background-color: rgb(2, 2, 2);
+}
+
+/* Dropdown content (hidden by default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  float: none;
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+
+/* Add a grey background color to dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown1:hover .dropdown-content {
+  display: block;
+}
+
+#hint_id_password1 {
+        display: none;
+      }
+
+.form:nth-child(n+6) {
+  display: none;
+}
+
+.centered{
+  margin: auto;
+  width: 50%;
+  border: 2px solid rgb(73, 203, 255);
+  padding: 10px;
+  background: rgba(239, 247, 248, 0.315);
+  padding-top: 40px;
+}
+
+body{
+  background-image: url("images/question.jpg");
+  background-color: rgb(39, 39, 39);
+  background-repeat: no-repeat;
+
+}˛
+.blabl {
+  background-image: url("images/question.jpg");
+  background-color: rgb(39, 39, 39);
+}
+
+
+
+.flex-item {
+  background-color: rgba(128, 128, 128, 0.377);
+}
+
+.form-group {
+  border-bottom: 2px solid rgb(255, 187, 61);
+  padding: 0px 5em 3em 5em;
+}
+
+.label-class {
+  font-size: 20px;
+  color: azure;
+}

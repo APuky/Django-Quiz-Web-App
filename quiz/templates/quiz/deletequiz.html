@@ -1,0 +1,9 @@
+{%extends './basetemp.html' %}
+{% block title %}Delete Quiz{% endblock %}
+{% block content %}
+    <h2>Are you sure you want to delete this quiz?</h2>
+    <h3>Once you press the button, there is no going back.</h3>
+    <a class="btn btn-danger" href="{% url 'deletequiz' quiz.id %}"
+      >Delete this quiz</a
+    >
+{% endblock %}

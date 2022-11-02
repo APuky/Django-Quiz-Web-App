@@ -1,0 +1,31 @@
+{%extends './basetemp.html' %}
+{% block title %}Quizes{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-around">
+    <div class="p-2">
+        <h2>Most popular quizes!</h2>
+        <ul>
+        {% for quiz in quizesPopular %}
+            <li><a href="{% url 'quiz' quiz.id %}">{{quiz}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="p-2">
+        <h2>Newest quizes!</h2>
+        <ul>
+        {% for quiz in quizesNewest %}
+            <li><a href="{% url 'quiz' quiz.id %}">{{quiz}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="p-2">
+        <h2>Easiest Quizes!</h2>
+        <ul>
+        {% for quiz in quizesEasiest %}
+            <li><a href="{% url 'quiz' quiz.id %}">{{quiz}}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+{%extends './basetemp.html' %}
+{%load crispy_forms_tags %}
+{% block title %}Register{% endblock %}
+{% block content %}
+    <div
+      style="max-width: 500px; margin: auto"
+      class="shadow-lg p-3 mb-5 bg-black rounded centered"
+    >
+      <h1>Registration</h1>
+      <form method="POST" action="{% url 'register' %}">
+        {% csrf_token %}
+        <div class="form-outline mb-4">{{form.username|as_crispy_field}}</div>
+        <div class="form-outline mb-4">{{form.email|as_crispy_field}}</div>
+        <div class="form-outline mb-4">{{form.password1|as_crispy_field}}</div>
+        <div class="form-outline mb-4">{{form.password2|as_crispy_field}}</div>
+
+        <button class="btn btn-primary" type="submit">Register</button>
+      </form>
+      <p class="text-center">
+        Already have an account? <a href="/login">Login here</a>.
+      </p>
+    </div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{%extends './basetemp.html' %}
+{% block title %}Quiz{% endblock %}
+{% block content %}
+    <a href="{% url 'home' %}">Go back</a>
+    <h1>{{quiz.title}}</h1>
+    <h2>{{quiz.description}}</h2>
+    <h3>Created by : {{quiz.created_by}} on {{quiz.created}}</h3>
+    <h3>Solved {{solvedby}} times.</h3>
+    {% if messages %}
+      {% for message in messages %}
+        <h2>{{message}}</h2>
+      {% endfor %}
+    {% endif %}
+    <a class="btn btn-primary" href="{% url 'solvequiz' quiz.id%}"
+      >Solve this quiz!</a
+    >
+
+    <table>
+      <tr>
+        <th>User</th>
+        <th>Points</th>
+      </tr>
+      {% if users %}
+        {%for user in users%}
+        <tr>
+          <td><a href="{% url 'profile' user.user_id%}">{{user.user}}</a></td>
+          <td>{{user.points}}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td>Be the first person to solve this quiz!</td>
+        </tr>
+      {% endif %}
+    </table>
+    {% if quiz.created_by == user %}
+      <a class="btn btn-danger" href="{% url 'deletequizpage' quiz.id %}"
+      >Delete this quiz</a
+    >
+    {% endif %}
+    <div class="row d-flex justify-content-center bottom">
+      <div class="col-md-8 col-lg-6">
+        <div class="card shadow-0 border" style="background-color: #f0f2f5;">
+          <div class="card-body p-4">
+            <div class="form-outline mb-4">
+              <form action="" method="POST">
+                {% csrf_token %}
+                {{commentform}}
+              <input type="submit" class="btn btn-primary mt-2" name="Submit" />
+              </form>
+            </div>
+          {% for comment in page_comments %}
+            <div class="card mb-4">
+              <div class="card-body">
+                <p>{{comment.comment}}</p>
+
+                <div class="d-flex justify-content-between">
+                  <div class="d-flex flex-row align-items-center">
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(32).webp" alt="avatar" width="25"
+                        height="25" />
+                    <p class="small mb-0 ms-2">{{comment.user}}</p>
+                  </div>
+                  <div class="d-flex flex-row align-items-center">
+                    <p class="small text-muted mb-0" id="like-{{comment.id}}" onclick="getdatajs('{{comment.id}}', 'like')">Like</p>
+                    
+                    <p class="mb-0 {% if comment.rating >= 0 %}text-primary{% else %}text-danger{% endif %} large" id=comment-{{comment.id}}>{{comment.rating}}</p>
+                    <p class="small text-muted mb-0" id="dislike-{{comment.id}}" onclick="getdatajs('{{comment.id}}', 'dislike')">Dislike</p>
+                  </div>
+                </div>
+                <div class="d-flex flex-row align-items-center">
+                    <p class="small mb-0 ms-2">{{comment.created}}</p>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+              <li class="page-item {% if not page_comments.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="?page=1" tabindex="-1">First</a>
+              </li>
+              <li class="page-item {% if not page_comments.has_previous %} disabled {% endif %}">
+                <a class="page-link" href="{% if page_comments.has_previous %}?page={{ page_comments.previous_page_number }} {% else %} # {% endif %}" tabindex="-1">Previous</a>
+              </li>
+
+              <li class="page-item disabled"><a class="page-link" href="#">Page {{ page_comments.number }} of {{ page_comments.paginator.num_pages }}</a></li>
+              <li class="page-item {% if not page_comments.has_next %} disabled {% endif %}">
+                <a class="page-link" href="{% if page_comments.has_next %}?page={{ page_comments.next_page_number }} {% else %} # {% endif %}">Next</a>
+              </li>
+              <li class="page-item {% if not page_comments.has_next %} disabled {% endif %}">
+                <a class="page-link" href="?page={{ page_comments.paginator.num_pages }}" tabindex="-1">Last</a>
+              </li>
+            </ul>
+          </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+  <script>
+    console.log("ready!");
+
+    const thisurl = "{% url 'quiz' quiz.id %}";
+
+    function getdatajs(id, vote){
+      const data = {
+        user : "{{ request.user.id }}",
+        commentid : id,
+        vote: vote,
+      }
+      getData(thisurl,id)
+      updateData(thisurl, data)
+
+      console.log(vote)
+      getData(thisurl,id)
+    }
+
+  </script>
+{% endblock %}
