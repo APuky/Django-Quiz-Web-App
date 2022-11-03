@@ -40,14 +40,14 @@
               Solve a Quiz
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="{% url 'quizes' 0 %}">History</a>
-              <a class="dropdown-item" href="{% url 'quizes' 1 %}">Geography</a>
-              <a class="dropdown-item" href="{% url 'quizes' 2 %}">Sports</a>
-              <a class="dropdown-item" href="{% url 'quizes' 3 %}">Entertainment</a>
-              <a class="dropdown-item" href="{% url 'quizes' 4 %}">Music</a>
-              <a class="dropdown-item" href="{% url 'quizes' 5 %}">Language</a>
-              <a class="dropdown-item" href="{% url 'quizes' 6 %}">Gaming</a>
-              <a class="dropdown-item" href="{% url 'quizes' 7 %}">Other</a>
+              <a class="dropdown-item" href="{% url 'quizes' category='history' %}">History</a>
+              <a class="dropdown-item" href="{% url 'quizes' category='geography' %}">Geography</a>
+              <a class="dropdown-item" href="{% url 'quizes' category='sports' %}">Sports</a>
+              <a class="dropdown-item" href="{% url 'quizes' category='entertainment' %}">Entertainment</a>
+              <a class="dropdown-item" href="{% url 'quizes' category='music' %}">Music</a>
+              <a class="dropdown-item" href="{% url 'quizes' category='language' %}">Language</a>
+              <a class="dropdown-item" href="{% url 'quizes' category='gaming' %}">Gaming</a>
+              <a class="dropdown-item" href="{% url 'quizes' category='other' %}">Other</a>
             </div>
           </li>
           <form class="form-inline" action="{% url 'quizsearch' %}" method="GET">

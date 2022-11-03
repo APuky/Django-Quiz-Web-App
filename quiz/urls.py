@@ -13,6 +13,6 @@ urlpatterns = [
     path('profile/<str:pk>/', views.userProfile, name='profile'),
     path('quiz/delete/<str:pk>/', views.deleteQuizPage, name='deletequizpage'),
     path('quiz/deleted/<str:pk>/', views.deleteQuiz, name='deletequiz'),
-    path('quizes/<str:pk>/', views.quizes, name='quizes'),
+    path('quizes/<str:category>/', views.quizes, name='quizes'),
     path('quizes-search/', views.quizSearch, name='quizsearch')
 ]

@@ -7,18 +7,18 @@ from django.contrib.auth.models import User
 
 class Quiz(models.Model):
     choices = (
-        ('0', "History"),
-        ('1', "Geography"),
-        ('2', "Sports"),
-        ('3', "Entertainment"),
-        ('4', "Music"),
-        ('5', "Language"),
-        ('6', "Gaming"),
-        ('7', "Other"),
+        ('history', "History"),
+        ('geography', "Geography"),
+        ('sports', "Sports"),
+        ('entertainment', "Entertainment"),
+        ('music', "Music"),
+        ('language', "Language"),
+        ('gaming', "Gaming"),
+        ('other', "Other"),
     )
 
-    title = models.CharField(max_length=100, unique=True, blank=False)
-    description = models.CharField(max_length=200, blank=False)
+    title = models.CharField(max_length=40, unique=True, blank=False)
+    description = models.CharField(max_length=100, blank=False)
     category = models.CharField(max_length=20, choices = choices)
     created = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)

@@ -422,10 +422,11 @@ def userProfile(request, pk):
 	return render(request, 'quiz/profile.html', context)
 
 
-def quizes(request, pk):
-	quizesPopular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=pk)[:10]
-	quizesNewest=Quiz.objects.filter(category=pk).order_by('-created')[:10]
-	quizesEasiest=Quiz.objects.filter(category=pk).annotate(rating=Avg('userquizpoints__points')).order_by('-rating')
+def quizes(request, category):
+	print(category)
+	quizesPopular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)[:10]
+	quizesNewest=Quiz.objects.filter(category=category).order_by('-created')[:10]
+	quizesEasiest=Quiz.objects.filter(category=category).annotate(rating=Avg('userquizpoints__points')).order_by('-rating')
 	for quiz in quizesEasiest:
 		print(quiz)
 	context={'quizesPopular':quizesPopular, 'quizesNewest':quizesNewest, 'quizesEasiest':quizesEasiest}

@@ -26,8 +26,8 @@ class CreateQuizForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['title'].widget.attrs.update({'class': 'form-control'})
-        self.fields['description'].widget.attrs.update({'class': 'form-control'})
+        self.fields['title'].widget.attrs.update({'class': 'form-control', 'maxlength':'40'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control', 'maxlength':'100'})
         self.fields['category'].widget.attrs.update({'class': 'form-control'})
 
 
