@@ -24,6 +24,7 @@ class QuizAdmin(admin.ModelAdmin):
 
 class CommentsAdmin(admin.ModelAdmin):
     list_display = ('user', 'comment', 'quiz', 'rating', 'created')
+    readonly_fields = ('quiz', 'user')
     list_filter = ('rating', 'created')
 
 class ScoresAdmin(admin.ModelAdmin):

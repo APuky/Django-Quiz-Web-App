@@ -47,40 +47,56 @@ def quizPage(request,pk):
 		if request.method == 'PUT':
 			data = json.load(request)
 			updated_values = data.get('payload')
-			comment=comments.get(id=updated_values['commentid'])
+			comment = comments.get(id=updated_values['commentid'])
 			like = updated_values['vote']
 
 			#Check if the user already upvoted/downvoted and block him from doing it again
 			if not UserCommentRelation.objects.filter(user = request.user, comment = comment).exists():
 				if like == 'like':
 					comment.rating+=1
-					usercomment = UserCommentRelation(user = request.user, comment = comment, like = True)
+					usercomment = UserCommentRelation(user = request.user, comment = comment, like = 1)
 					usercomment.save()
 					comment.save()
 				else:
 					comment.rating-=1
-					usercomment = UserCommentRelation(user = request.user, comment = comment, like = False)
+					usercomment = UserCommentRelation(user = request.user, comment = comment, like = -1)
 					usercomment.save()
 					comment.save()
 			else:
 				currentcomment = UserCommentRelation.objects.get(user = request.user, comment = comment)
-				if currentcomment.like:
-					if like == 'like':
-						pass
+				if like == 'like':
+					if currentcomment.like == 0:
+						comment.rating += 1
+						comment.save()
+						currentcomment.like += 1
+						currentcomment.save()
+					elif currentcomment.like == -1:
+						comment.rating +=2
+						comment.save()
+						currentcomment.like = 1
+						currentcomment.save()
 					else:
-						comment.rating-=1
+						comment.rating -= 1
 						comment.save()
-						currentcomment.like=False
-						currentcomment.save()
-				else:
-					if like == 'like':
-						comment.rating+=1
-						comment.save()
-						currentcomment.like=True
+						currentcomment.like = 0
 						currentcomment.save()
 
-
-				
+				if like == 'dislike':
+					if currentcomment.like == 0:
+						comment.rating -= 1
+						comment.save()
+						currentcomment.like = -1
+						currentcomment.save()
+					elif currentcomment.like == 1:
+						comment.rating -= 2
+						comment.save()
+						currentcomment.like = -1
+						currentcomment.save()
+					else:
+						comment.rating += 1
+						comment.save()
+						currentcomment.like = 0
+						currentcomment.save()
 			
 			return JsonResponse({'status': 'OK'}, status=200)
 			
@@ -97,7 +113,6 @@ def quizPage(request,pk):
 	
 
 	return render(request, 'quiz/quiz.html', context)
-
 
 
 def userRegister(request):
@@ -139,50 +154,6 @@ def userLogout(request):
 
 @login_required
 def createQuiz(request):
-	questionFormset = formset_factory(QuizCreateForm, extra=2)
-	if request.method == 'POST':
-		quiznewform=CreateQuizForm(request.POST)
-
-		quizformset=questionFormset(request.POST)
-
-		if quizformset.is_valid():
-			#formData = quizform.cleaned_data
-			print("works here1")
-			obj = quiznewform.save(commit=False)
-			obj.created_by = request.user
-			obj.save()
-
-			print("works here1")
-
-
-			for form in quizformset:
-				data = form.cleaned_data
-				answer = data.get('correct_answer')
-				
-				question = Question(text=data.get('Questiontext'), quiz=Quiz.objects.latest('created'))
-				question.save()
-
-				for i in range(1,5):
-					if i == int(answer):
-						choice = Choice(choice=data.get(f'choice{i}'), is_right=True, question=Question.objects.order_by('-pk')[0])
-						choice.save()
-					else:
-						choice = Choice(choice=data.get(f'choice{i}'), is_right=False, question=Question.objects.order_by('-pk')[0])
-						choice.save()
-
-			
-			return redirect('home')
-	
-	else:
-		quiznewform=CreateQuizForm()
-		quizformset=questionFormset()
-
-
-	context = {'quizformset':quizformset, 'quiznewform':quiznewform}
-	return render(request, 'quiz/createquiz.html', context)
-
-@login_required
-def createQuiz1(request):
 	questionFormset = formset_factory(QuizCreateForm, extra=20)
 	if request.method == 'POST':
 		quiznewform=CreateQuizForm(request.POST)
@@ -230,13 +201,15 @@ def createQuiz1(request):
 								choice.save()
 			
 		else:
-			print(quizformset.non_form_errors())
-			print(quizformset.errors)
-			print("Error")
+			for error in quiznewform.errors:
+				if error == 'title':
+					messages.add_message(request, messages.ERROR, f'A quiz already exists with the same title!')
+				else:
+					messages.add_message(request, messages.ERROR, f'Unexpected error, make sure all the required fields are filled.')
 			context = {'quizformset':quizformset, 'quiznewform':quiznewform}
 			return render(request, 'quiz/createquiz.html', context)	
 			
-		return redirect('home')
+		return redirect('quiz', pk=obj.id)
 
 	
 	else:
@@ -246,56 +219,6 @@ def createQuiz1(request):
 
 	context = {'quizformset':quizformset, 'quiznewform':quiznewform}
 	return render(request, 'quiz/createquiz.html', context)
-
-@login_required
-def createQuiz2(request):
-	questionFormset = formset_factory(QuizCreateForm, extra=20)
-	if request.method == 'POST':
-		quiznewform=CreateQuizForm(request.POST)
-		quizformset=questionFormset(request.POST)
-
-		if quiznewform.is_valid():
-			#formData = quizform.cleaned_data
-			obj = quiznewform.save(commit=False)
-			obj.created_by = request.user
-			obj.save()
-
-			for form in quizformset:
-				if form.is_valid():
-					print("Is valid.")
-					if form.cleaned_data.get("Questiontext")!='':
-						if form.cleaned_data.get("choice1")!='' and form.cleaned_data.get("choice2")!='' and form.cleaned_data.get("choice3")!='' and form.cleaned_data.get("choice4")!='':
-							print(form.cleaned_data.get("Questiontext"))
-							print(type(form.cleaned_data.get("Questiontext")))
-							data = form.cleaned_data
-							answer = data.get('correct_answer')
-							
-							question = Question(text=data.get('Questiontext'), quiz=Quiz.objects.latest('created'))
-							question.save()
-
-							for i in range(1,5):
-								if i == int(answer):
-									choice = Choice(choice=data.get(f'choice{i}'), is_right=True, question=Question.objects.order_by('-pk')[0])
-									choice.save()
-								else:
-									choice = Choice(choice=data.get(f'choice{i}'), is_right=False, question=Question.objects.order_by('-pk')[0])
-									choice.save()
-										
-
-				else:
-					break
-			
-			return redirect('home')
-
-	
-	else:
-		quiznewform=CreateQuizForm()
-		quizformset=questionFormset()
-
-
-	context = {'quizformset':quizformset, 'quiznewform':quiznewform}
-	return render(request, 'quiz/createquiz.html', context)
-
 
 
 def deleteQuizPage(request, pk):
@@ -423,13 +346,29 @@ def userProfile(request, pk):
 
 
 def quizes(request, category):
-	print(category)
-	quizesPopular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)[:10]
-	quizesNewest=Quiz.objects.filter(category=category).order_by('-created')[:10]
-	quizesEasiest=Quiz.objects.filter(category=category).annotate(rating=Avg('userquizpoints__points')).order_by('-rating')
-	for quiz in quizesEasiest:
-		print(quiz)
-	context={'quizesPopular':quizesPopular, 'quizesNewest':quizesNewest, 'quizesEasiest':quizesEasiest}
+	popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)
+	context={'quizes':popular, 'search':'Popular'}
+
+	if request.method == 'POST':
+		sort_by=request.POST['sort']
+		if sort_by == 'popular':
+			popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)
+			context={'quizes':popular, 'search':'Popular'}
+		elif sort_by == 'newest':
+			newest=Quiz.objects.filter(category=category).order_by('-created').annotate(count=Count('userquizpoints'))
+			context={'quizes':newest, 'search':'Newest'}
+		elif sort_by == 'oldest':
+			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('userquizpoints'))
+			context={'quizes':oldest, 'search':'Oldest'}
+		elif sort_by == 'easiest':
+			easiest=Quiz.objects.filter(category=category).annotate(rating=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			context={'quizes':easiest, 'search':'Easiest'}
+
+	paginator = Paginator(context['quizes'],10)
+	page_number = request.GET.get('page')
+	page_obj = paginator.get_page(page_number)
+	context['searchdata']=page_obj
+
 	return render(request, 'quiz/quizes.html', context)
 
 def quizSearch(request):

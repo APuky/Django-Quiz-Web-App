@@ -36,7 +36,7 @@
                       height="60" />
                     <div class="pl-1">
                       <a href="{% url 'quiz' quiz.id %}" class="badge badge-light">
-                        <h4 class="font-weight-bold mb-1">{{quiz.title}}</h4>
+                        <h4 class="font-weight-bold mb-1">{{quiz.title|truncatechars:20|title}}</h4>
                       </a>
                         <div class="d-flex align-items-center mb-3">
                           <p class="mb-0">
@@ -48,7 +48,7 @@
                           <a href="#!" class="link-muted"><i class="fas fa-heart ms-2"></i></a>
                         </div>
                         <p class="mb-0 font-weight-bold">
-                          {{quiz.description}}
+                          {{quiz.description|truncatechars:30}}
                         </p>
                         <p class="mb-0">
                           Created by: {{quiz.created_by}}

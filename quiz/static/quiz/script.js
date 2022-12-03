@@ -37,6 +37,8 @@ function showExtra() {
 }
 
 
+
+//AJAX
 function getData(url, id) {
     fetch(url, {
         method: "GET",

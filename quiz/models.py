@@ -65,13 +65,24 @@ class QuizComments(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
 
+
     def __str__(self):
         return self.comment
 
 class UserCommentRelation(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     comment = models.ForeignKey(QuizComments, on_delete=models.CASCADE)
-    like = models.BooleanField()
+    like = models.IntegerField(default=0)
+
+
+class ReportedComments(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    comment = models.ForeignKey(QuizComments, on_delete=models.CASCADE)
+    reason = models.CharField(max_length=160, default='Reason')
+
+    def __str__(self):
+        return self.comment.comment
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -81,3 +92,4 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+

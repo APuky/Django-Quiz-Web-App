@@ -2,29 +2,29 @@
 {% block title %}Solve{% endblock %}
 {% block content %}
   <div class="centered">
-    <div class="centered">
-      <h1>{{quiz.title}}</h1>
-      <h2>{{quiz.description}}</h2>
-      <h3>Created by : {{quiz.created_by}} on {{quiz.created}}</h3>
+    <div style="margin: auto; width:50%; text-align: center;">
+      <h1 class="question-text">{{quiz.title}}</h1>
     </div>
     <form action="" method="POST">
       {% csrf_token %}
       {%for question in questions%}
-      <fieldset class="centered">
-          <h2 style="color: rgb(73, 203, 255);">{{question.text}}</h2>
-          <ol type="A" class="label-class">
+      <fieldset class="form-group">
+          <h2 class="question-text">{{question.text}}</h2>
+          <ol type="A" class="label-class" style="padding-left: 0;">
             {% for choice in choices %} 
               {% if choice.question == question %}
-                <div class="form-check">
+                <div class="form-check" style="padding-left: 0;">
                   <input type="radio" id="{{choice}}" value="{{choice.id}}" name={{question.id}}>
-                  <label for="{{choice}}">{{choice}}</label>
+                  <label for="{{choice}}" id="{{choice}}label">{{choice}}</label>
                 </div>
               {% endif %}
             {% endfor %}
           </ol>
       </fieldset>
       {% endfor %}
-      <input class="btn btn-secondary" type="submit" name="Submit" />
+      <div style="margin: auto; width: 50%; text-align: center;">
+        <input class="btn btn-info" type="submit" name="Submit">
+      </div>
   </div>
     </form>
 {% endblock %}

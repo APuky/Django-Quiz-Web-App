@@ -84,7 +84,10 @@
   background: rgba(239, 247, 248, 0.315);
   padding-top: 40px;
 }
-
+.center{
+  margin: auto;
+  width: 75%;
+}
 body{
   background-image: url("images/question.jpg");
   background-color: rgb(39, 39, 39);
@@ -110,4 +113,22 @@ body{
 .label-class {
   font-size: 20px;
   color: azure;
+}
+
+.question-text {
+  color: rgb(73, 203, 255);
+  margin: auto;
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.555);
+  padding-bottom: 10px;
+}
+
+@media screen and (max-width: 991px) {
+    .centered{
+      width: 100%;
+    }
+
+    .center{
+      width: 100%;
+    }
+
 }
