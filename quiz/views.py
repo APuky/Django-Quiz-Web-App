@@ -17,6 +17,8 @@ from django.http import HttpResponseBadRequest, JsonResponse
 
 import json
 
+from django.forms.models import model_to_dict
+
 def homePage(request):
 	quiz = Quiz.objects.all()
 	context = {'quiz': quiz}
@@ -38,65 +40,130 @@ def quizPage(request,pk):
 	context = {'quiz': quiz, 'users': users, 'solvedby':solvedby, 'commentform':CommentForm, 'page_comments':page_comments}
 
 	is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-
+	print(request)
 	if is_ajax:
+		if request.method == 'POST':
+			data = json.load(request)
+			updated_values = data.get('payload')
+			if 'commentid' in updated_values:
+				comment = QuizComments.objects.get(id = int(updated_values['commentid']))
+				user = comment.user
+
+				report = ReportedComments(reportedby = request.user, user = user,comment = comment, reason = updated_values['reason'])
+				report.save()
+				return JsonResponse({'status': 'OK'}, status=200)
+			else:
+				report = ReportedQuiz(reportedbyuser = request.user, user = quiz.created_by, quiz = quiz, reason = updated_values['reason'])
+				report.save()
+				return JsonResponse({'status': 'OK'}, status=200)
+
 		if request.method == 'GET':
-			comments = list(QuizComments.objects.all().values())
-			return JsonResponse({'context': comments})
+			comments = list(QuizComments.objects.filter(quiz=quiz).values())
+			return JsonResponse({'comments': comments, 'quiz':model_to_dict(quiz)})
 
 		if request.method == 'PUT':
 			data = json.load(request)
 			updated_values = data.get('payload')
-			comment = comments.get(id=updated_values['commentid'])
 			like = updated_values['vote']
+			#Check if this ajax request is for the comments or for the quiz
+			if 'commentid' in updated_values:
+				comment = comments.get(id=updated_values['commentid'])
 
-			#Check if the user already upvoted/downvoted and block him from doing it again
-			if not UserCommentRelation.objects.filter(user = request.user, comment = comment).exists():
-				if like == 'like':
-					comment.rating+=1
-					usercomment = UserCommentRelation(user = request.user, comment = comment, like = 1)
-					usercomment.save()
-					comment.save()
+				#Check if the user already upvoted/downvoted and block him from doing it again
+				if not UserCommentRelation.objects.filter(user = request.user, comment = comment).exists():
+					if like == 'like':
+						comment.rating+=1
+						usercomment = UserCommentRelation(user = request.user, comment = comment, like = 1)
+						usercomment.save()
+						comment.save()
+					else:
+						comment.rating-=1
+						usercomment = UserCommentRelation(user = request.user, comment = comment, like = -1)
+						usercomment.save()
+						comment.save()
 				else:
-					comment.rating-=1
-					usercomment = UserCommentRelation(user = request.user, comment = comment, like = -1)
-					usercomment.save()
-					comment.save()
-			else:
-				currentcomment = UserCommentRelation.objects.get(user = request.user, comment = comment)
-				if like == 'like':
-					if currentcomment.like == 0:
-						comment.rating += 1
-						comment.save()
-						currentcomment.like += 1
-						currentcomment.save()
-					elif currentcomment.like == -1:
-						comment.rating +=2
-						comment.save()
-						currentcomment.like = 1
-						currentcomment.save()
-					else:
-						comment.rating -= 1
-						comment.save()
-						currentcomment.like = 0
-						currentcomment.save()
+					currentcomment = UserCommentRelation.objects.get(user = request.user, comment = comment)
+					if like == 'like':
+						if currentcomment.like == 0:
+							comment.rating += 1
+							comment.save()
+							currentcomment.like += 1
+							currentcomment.save()
+						elif currentcomment.like == -1:
+							comment.rating +=2
+							comment.save()
+							currentcomment.like = 1
+							currentcomment.save()
+						else:
+							comment.rating -= 1
+							comment.save()
+							currentcomment.like = 0
+							currentcomment.save()
 
-				if like == 'dislike':
-					if currentcomment.like == 0:
-						comment.rating -= 1
-						comment.save()
-						currentcomment.like = -1
-						currentcomment.save()
-					elif currentcomment.like == 1:
-						comment.rating -= 2
-						comment.save()
-						currentcomment.like = -1
-						currentcomment.save()
+					if like == 'dislike':
+						if currentcomment.like == 0:
+							comment.rating -= 1
+							comment.save()
+							currentcomment.like = -1
+							currentcomment.save()
+						elif currentcomment.like == 1:
+							comment.rating -= 2
+							comment.save()
+							currentcomment.like = -1
+							currentcomment.save()
+						else:
+							comment.rating += 1
+							comment.save()
+							currentcomment.like = 0
+							currentcomment.save()
+			else:
+				if not UserQuizRelation.objects.filter(user = request.user, quiz = quiz).exists():
+					if like == 'like':
+						quiz.rating+=1
+						userquizrating = UserQuizRelation(user = request.user, quiz = quiz, like = 1)
+						userquizrating.save()
+						quiz.save()
 					else:
-						comment.rating += 1
-						comment.save()
-						currentcomment.like = 0
-						currentcomment.save()
+						quiz.rating-=1
+						userquizrating = UserQuizRelation(user = request.user, quiz = quiz, like = -1)
+						userquizrating.save()
+						quiz.save()
+				else:
+					userquizrating = UserQuizRelation.objects.get(user = request.user, quiz = quiz)
+					if like == 'like':
+						if userquizrating.like == 0:
+							quiz.rating += 1
+							quiz.save()
+							userquizrating.like += 1
+							userquizrating.save()
+						elif userquizrating.like == -1:
+							quiz.rating +=2
+							quiz.save()
+							userquizrating.like = 1
+							userquizrating.save()
+						else:
+							quiz.rating -= 1
+							quiz.save()
+							userquizrating.like = 0
+							userquizrating.save()
+
+					if like == 'dislike':
+						if userquizrating.like == 0:
+							quiz.rating -= 1
+							quiz.save()
+							userquizrating.like = -1
+							userquizrating.save()
+						elif userquizrating.like == 1:
+							quiz.rating -= 2
+							quiz.save()
+							userquizrating.like = -1
+							userquizrating.save()
+						else:
+							quiz.rating += 1
+							quiz.save()
+							userquizrating.like = 0
+							userquizrating.save()
+
 			
 			return JsonResponse({'status': 'OK'}, status=200)
 			
@@ -244,14 +311,14 @@ def solveQuizPage(request, pk):
 
 	
 	if request.method == 'POST':
-		print(request.POST)
+		#print(request.POST)
 		choices = Choice.objects.filter(question__quiz_id=pk)
 		
 		quiz = Quiz.objects.get(id=pk)
 		questions = Question.objects.filter(quiz=pk)
 
 
-		print(questions)
+		#print(questions)
 		score=0
 		
 		for pair in request.POST.items():
@@ -276,50 +343,12 @@ def solveQuizPage(request, pk):
 	name = quiz.title
 	questions = Question.objects.filter(quiz=pk)
 	choices = Choice.objects.filter(question__quiz_id=pk)
-	print(choices)
-	context = {'quiz': quiz, 'questions':questions, 'choices':choices, 'form1':QuizSolveForm}
+	question_number=questions.first().id - 1
+	for question in questions:
+		question.number = question.id - question_number
+	context = {'quiz': quiz, 'questions':questions, 'choices':choices, 'form1':QuizSolveForm, 'number':question_number}
 	return render(request, 'quiz/solve_quiz.html', context)
 
-
-def solveQuizPageBackup(request, pk):
-	
-	if request.method == 'POST':
-		print(request.POST)
-		answers = request.POST.getlist('answer')
-		choices = Choice.objects.filter(question__quiz_id=pk)
-		
-		quiz = Quiz.objects.get(id=pk)
-		questions = Question.objects.filter(quiz=pk)
-		
-		score=0
-		for num, question in enumerate(questions):
-			set_choice=question.choice_set.all()
-			for number, choice in enumerate(set_choice):
-				if choice.is_right == True:
-					if int(answers[num]) == number:
-						score+=1		
-				else:
-					pass
-		if request.user.is_authenticated:
-			userscore= UserQuizPoints(user=request.user, quiz=quiz, points=score)
-			userscore.save()
-		messages.add_message(request, messages.SUCCESS, f'You scored {score}/{questions.count()} points!')
-		print(score)
-		print(pk)
-		print(request.user.id)
-
-		return redirect('quiz', pk=pk)
-
-	else:
-		pass
-	
-	quiz = Quiz.objects.get(id=pk)
-	name = quiz.title
-	questions = Question.objects.filter(quiz=pk)
-	choices = Choice.objects.filter(question__quiz_id=pk)
-	print(choices)
-	context = {'quiz': quiz, 'questions':questions, 'choices':choices, 'form1':QuizSolveForm}
-	return render(request, 'quiz/solve_quiz.html', context)
 
 @login_required
 def userProfile(request, pk):
@@ -378,4 +407,4 @@ def quizSearch(request):
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
 	context={'searchdata':page_obj, 'query':search}
-	return render(request, 'quiz/home.html', context)
+	return render(request, 'quiz/quizes_search.html', context)

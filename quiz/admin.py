@@ -30,12 +30,24 @@ class CommentsAdmin(admin.ModelAdmin):
 class ScoresAdmin(admin.ModelAdmin):
     readonly_fields = ('date',)
 
+
+class CommentReportsAdmin(admin.ModelAdmin):
+    list_display =('comment', 'reason')
+    readonly_fields = ('reportedby','user','comment','reason')
+
+class QuizReportsAdmin(admin.ModelAdmin):
+    list_display =('reason',)
+    readonly_fields = ('reportedbyuser','user','reason', 'quiz')
+
+
 admin.site.register(Quiz, QuizAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(UserQuizPoints, ScoresAdmin)
 admin.site.register(QuizComments, CommentsAdmin)
 
 admin.site.register(Profile)
+admin.site.register(ReportedComments, CommentReportsAdmin)
+admin.site.register(ReportedQuiz, QuizReportsAdmin)
 
 admin.site.site_url = '/home'
 

@@ -9,7 +9,7 @@
       {% csrf_token %}
       {%for question in questions%}
       <fieldset class="form-group">
-          <h2 class="question-text">{{question.text}}</h2>
+          <h2 class="question-text">{{question.number}}. {{question.text}}</h2>
           <ol type="A" class="label-class" style="padding-left: 0;">
             {% for choice in choices %} 
               {% if choice.question == question %}

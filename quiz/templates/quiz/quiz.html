@@ -14,6 +14,11 @@
     <a class="btn btn-primary" href="{% url 'solvequiz' quiz.id%}"
       >Solve this quiz!</a
     >
+    <h2>Rate this quiz!</h2>
+    <p class="small text-muted mb-0" id="like-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'like')">Like</p>
+    <p class="mb-0" id=quizrating>{{quiz.rating}}</p>
+    <p class="small text-muted mb-0" id="dislike-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'dislike')">dislike</p>
+    <p class="small mb-0 ms-2" data-toggle="modal" data-target="#quizmodal">Report</p>
 
     <table>
       <tr>
@@ -38,7 +43,7 @@
       >Delete this quiz</a
     >
     {% endif %}
-    <div class="row d-flex justify-content-center bottom">
+    <div class="row d-flex justify-content-center bottom" style="margin-right: 0px;">
       <div class="col-md-8 col-lg-6">
         <div class="card shadow-0 border" style="background-color: #f0f2f5;">
           <div class="card-body p-4">
@@ -46,7 +51,11 @@
               <form action="" method="POST">
                 {% csrf_token %}
                 {{commentform}}
-              <input type="submit" class="btn btn-primary mt-2" name="Submit" />
+                {% if user.is_authenticated %}
+                  <input type="submit" class="btn btn-primary mt-2" name="Submit" value="Post" />
+                {% else %}
+                  <input type="submit" class="btn btn-primary mt-2" name="Submit" value="Log in to comment" disabled />
+                {% endif %}
               </form>
             </div>
           {% for comment in page_comments %}
@@ -61,10 +70,11 @@
                     <p class="small mb-0 ms-2">{{comment.user}}</p>
                   </div>
                   <div class="d-flex flex-row align-items-center">
-                    <p class="small text-muted mb-0" id="like-{{comment.id}}" onclick="getdatajs('{{comment.id}}', 'like')">Like</p>
+                    <p class="small text-muted mb-0" id="like-{{comment.id}}" onclick="commentvoting('{{comment.id}}', 'like')">Like</p>
                     
                     <p class="mb-0 {% if comment.rating >= 0 %}text-primary{% else %}text-danger{% endif %} large" id=comment-{{comment.id}}>{{comment.rating}}</p>
-                    <p class="small text-muted mb-0" id="dislike-{{comment.id}}" onclick="getdatajs('{{comment.id}}', 'dislike')">Dislike</p>
+                    <p class="small text-muted mb-0" id="dislike-{{comment.id}}" onclick="commentvoting('{{comment.id}}', 'dislike')">Dislike</p>
+                    <p class="small mb-0 ms-2" data-toggle="modal" data-target="#commentmodal" onclick="addcomment('{{comment.id}}')">Report</p>
                   </div>
                 </div>
                 <div class="d-flex flex-row align-items-center">
@@ -95,14 +105,96 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="commentmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Report comment</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="comment-report-reason" class="col-form-label">Reason:</label>
+                <textarea class="form-control" id="comment-report-reason"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <span class="small mb-0 ms-2">False reports will be discarded.</span>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="callreportcomment()" data-dismiss="modal">Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal fade" id="quizmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Report quiz</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form>
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="quiz-report-reason" class="col-form-label">Reason:</label>
+                <textarea class="form-control" id="quiz-report-reason"></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <span class="small mb-0 ms-2">False reports will be discarded.</span>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="callreportquiz()" data-dismiss="modal">Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock %}
 {% block javascript %}
   <script>
-    console.log("ready!");
 
     const thisurl = "{% url 'quiz' quiz.id %}";
 
-    function getdatajs(id, vote){
+    function addcomment(id){
+      localStorage.setItem('commentid', id);
+      console.log(localStorage.getItem('commentid'))
+    }
+
+    function callreportcomment(){
+      commentid = localStorage.getItem('commentid')
+      reason = document.getElementById('comment-report-reason')
+      console.log(reason.value)
+      const data = {
+        commentid : commentid,
+        reason : reason.value
+
+      }
+      console.log(data)
+      report(thisurl, data)
+
+    }
+
+    function callreportquiz(){
+      reason = document.getElementById('quiz-report-reason')
+      console.log(reason.value)
+      const data = {
+        reason : reason.value
+      }
+      console.log(data)
+      report(thisurl, data)
+    }
+    
+
+    function commentvoting(id, vote){
       const data = {
         user : "{{ request.user.id }}",
         commentid : id,
@@ -110,8 +202,16 @@
       }
       getData(thisurl,id)
       updateData(thisurl, data)
+      getData(thisurl,id)
+    }
 
-      console.log(vote)
+    function quizvoting(id, vote){
+      const data = {
+        user : "{{ request.user.id }}",
+        vote: vote,
+      }
+      getData(thisurl,id)
+      updateData(thisurl, data)
       getData(thisurl,id)
     }
 

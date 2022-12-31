@@ -48,13 +48,20 @@ function getData(url, id) {
         })
     .then(response => response.json())
     .then(data => {
-    console.log(data);
+    
 
-    let rating = data.context.find(comment => comment.id == id)['rating']
-    document.getElementById('comment-'+ id).innerHTML = rating
-    console.log(data.context.find(comment => comment.id == id)['rating'])
+
+    if (data.comments.find(comment => comment.id == id)){
+        let commentrating = data.comments.find(comment => comment.id == id)['rating']
+        document.getElementById('comment-'+ id).innerHTML = commentrating
+    }
+
+    let quizrating = data.quiz['rating']
+    document.getElementById('quizrating').innerHTML = quizrating
+    
 });
 }
+
 
 //Django provided function to get the csrf cookie needed to post data https://docs.djangoproject.com/en/3.0/ref/csrf/#ajax
 function getCookie(name) {
@@ -88,4 +95,38 @@ function updateData(url, payload) {
     .then(data => {
         console.log(data);
         });
+}
+
+// Not in use
+function updateQuizData(url, payload) {
+    fetch(url, {
+        method: "PUT",
+        credentials: "same-origin",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": getCookie("csrftoken"),  // don't forget to include the 'getCookie' function
+        },
+        body: JSON.stringify({payload: payload})
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        });
+}
+
+
+function report(url, payload){
+fetch(url, {
+  method: "POST",
+  credentials: "same-origin",
+  headers: {
+    "X-Requested-With": "XMLHttpRequest",
+    "X-CSRFToken": getCookie("csrftoken"),
+  },
+  body: JSON.stringify({payload: payload})
+})
+.then(response => response.json())
+.then(data => {
+  console.log(data);
+});
 }
