@@ -373,13 +373,16 @@ def userProfile(request, pk):
 	context = {'scores':scores, 'stats':profile}
 	return render(request, 'quiz/profile.html', context)
 
-
 def quizes(request, category):
 	popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)
 	context={'quizes':popular, 'search':'Popular'}
+	print('Here again')
+	
+	
 
 	if request.method == 'POST':
 		sort_by=request.POST['sort']
+		print(request.POST['sort'])
 		if sort_by == 'popular':
 			popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)
 			context={'quizes':popular, 'search':'Popular'}
@@ -390,10 +393,27 @@ def quizes(request, category):
 			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('userquizpoints'))
 			context={'quizes':oldest, 'search':'Oldest'}
 		elif sort_by == 'easiest':
-			easiest=Quiz.objects.filter(category=category).annotate(rating=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			easiest=Quiz.objects.filter(category=category).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
 			context={'quizes':easiest, 'search':'Easiest'}
+		#Django paginator je salje GET request svaki put kada se stranica promijeni, što znači da se onda queryset defaulta na popularne kvizove svaki put.
+		#Ovaj ispod kod iz get requesta izvlači "search" i po tome onda slaže queryset
+		#MOGUĆE POBOLJŠAT
+	
+	if request.method == 'GET':
 
-	paginator = Paginator(context['quizes'],10)
+		if request.GET.get('search') == 'Newest':
+			newest=Quiz.objects.filter(category=category).order_by('-created').annotate(count=Count('userquizpoints'))
+			context={'quizes':newest, 'search':'Newest'}
+			
+		elif request.GET.get('search') == 'Oldest':
+			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('userquizpoints'))
+			context={'quizes':oldest, 'search':'Oldest'}
+		elif request.GET.get('search') == 'Easiest':
+			easiest=Quiz.objects.filter(category=category).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			context={'quizes':easiest, 'search':'Easiest'}
+	
+	
+	paginator = Paginator(context['quizes'],5)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
 	context['searchdata']=page_obj
@@ -402,9 +422,25 @@ def quizes(request, category):
 
 def quizSearch(request):
 	search=(request.GET.get("search"))
-	quizes=Quiz.objects.filter(title__icontains=search)
-	paginator = Paginator(quizes, 6)
+	quizes=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(title__icontains=search)
+	paginator = Paginator(quizes, 2)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
-	context={'searchdata':page_obj, 'query':search}
+	context={'quizes':quizes, 'search':'Popular'}
+	if request.method == 'POST':
+		sort_by=request.POST['sort']
+		if sort_by == 'popular':
+			popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(title__icontains=search)
+			context={'quizes':popular, 'search':'Popular'}
+		elif sort_by == 'newest':
+			newest=Quiz.objects.filter(title__icontains=search).order_by('-created').annotate(count=Count('userquizpoints'))
+			context={'quizes':newest, 'search':'Newest'}
+		elif sort_by == 'oldest':
+			oldest=Quiz.objects.filter(title__icontains=search).order_by('created').annotate(count=Count('userquizpoints'))
+			context={'quizes':oldest, 'search':'Oldest'}
+		elif sort_by == 'easiest':
+			easiest=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			context={'quizes':easiest, 'search':'Easiest'}
+	context['searchdata']=page_obj
+	context['query']=search
 	return render(request, 'quiz/quizes_search.html', context)

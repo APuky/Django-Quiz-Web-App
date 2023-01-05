@@ -12,7 +12,7 @@
                     <form action="" method="POST" style="float: right;">
                         {% csrf_token %}
                         <select name="sort" id="sort" class="form-select">
-                            <option value="" selected disabled hidden>{{search}}</option>
+                             <option value="{{search}}" hidden selected>{{search}}</option>
                             <option value="popular">Popular</option>
                             <option value="newest">Newest</option>
                             <option value="oldest">Oldest</option>
@@ -26,12 +26,11 @@
                 <th>Title</th>
                 <th>Description</th>
                 <th>Times Solved</th>
-                <th>Created by</th>
-                <th>Created on</th>
+                <th>Rating</th>
             </tr>
         </thead>
         <tbody>
-            {% for quiz in quizes %}
+            {% for quiz in searchdata %}
             <tr>
             <td>
                 <div class="d-flex align-items-center">
@@ -47,16 +46,13 @@
                 </div>
             </td>
             <td>
-                <p class="fw-normal mb-1">{{quiz.description|truncatechars:100}}</p>
-                <p class="text-muted mb-0">IT department</p>
+                <p class="fw-normal mb-1">{{quiz.description|truncatechars:100}}...</p>
+                <p class="text-muted mb-0">Created: {{quiz.created|date:'j/M/Y'}}</p>
             </td>
             <td>
                 <span class="badge badge-primary rounded-pill d-inline">{{quiz.count}}</span>
             </td>
-            <td>{{quiz.created_by}}</td>
-            <td>
-                {{quiz.created|date:'j/M/Y'}}
-            </td>
+            <td>{{quiz.rating}}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -65,19 +61,19 @@
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-center">
                         <li class="page-item {% if not searchdata.has_previous %} disabled {% endif %}">
-                            <a class="page-link" href="?page=1&search={{query}}" tabindex="-1">First</a>
+                            <a class="page-link" href="?page=1&search={{search}}" tabindex="-1">First</a>
                         </li>
                         <li class="page-item {% if not searchdata.has_previous %} disabled {% endif %}">
-                            <a class="page-link" href="{% if searchdata.has_previous %}?page={{ searchdata.previous_page_number }}&search={{query}} {% else %} # {% endif %}" tabindex="-1">Previous</a>
+                            <a class="page-link" href="{% if searchdata.has_previous %}?page={{ searchdata.previous_page_number }}&search={{search}} {% else %} # {% endif %}" tabindex="-1">Previous</a>
                         </li>
 
                         <li class="page-item disabled">
                             <a class="page-link" href="#">Page {{ searchdata.number }} of {{ searchdata.paginator.num_pages }}</a></li>
                         <li class="page-item {% if not searchdata.has_next %} disabled {% endif %}">
-                            <a class="page-link" href="{% if searchdata.has_next %}?page={{ searchdata.next_page_number }}&search={{query}} {% else %} # {% endif %}">Next</a>
+                            <a class="page-link" href="{% if searchdata.has_next %}?page={{ searchdata.next_page_number }}&search={{search}} {% else %} # {% endif %}">Next</a>
                         </li>
                         <li class="page-item {% if not searchdata.has_next %} disabled {% endif %}">
-                            <a class="page-link" href="?page={{ searchdata.paginator.num_pages }}&search={{query}}" tabindex="-1">Last</a>
+                            <a class="page-link" href="?page={{ searchdata.paginator.num_pages }}&search={{search}}" tabindex="-1">Last</a>
                         </li>
                     </ul>
                 </nav>

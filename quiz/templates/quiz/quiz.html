@@ -1,50 +1,61 @@
 {%extends './basetemp.html' %}
 {% block title %}Quiz{% endblock %}
 {% block content %}
-    <a href="{% url 'home' %}">Go back</a>
-    <h1>{{quiz.title}}</h1>
-    <h2>{{quiz.description}}</h2>
-    <h3>Created by : {{quiz.created_by}} on {{quiz.created}}</h3>
-    <h3>Solved {{solvedby}} times.</h3>
+    <div class="card center text-center">
+      <h5 class="card-header">{{quiz.title}}</h5>
+      <div class="card-body">
+        <h5 class="card-title">{{quiz.description}}</h5>
+        <p class="card-text">Created by : {{quiz.created_by}} on {{quiz.created}}</p>
+        <a href="{% url 'solvequiz' quiz.id%}" class="btn btn-primary">Solve</a>
+      </div>
+        <div class="card-footer">
+          <div class="btn-group" role="group" aria-label="Basic example" style="float: left;">
+            <button type="button" class="btn btn-primary" id="like-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'like')">Like</button>
+            <button type="button" class="btn btn-secondary btn-lg" id="quizrating" disabled>{{quiz.rating}}</button>
+            
+            <button type="button" class="btn btn-primary" id="dislike-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'dislike')">Dislike</button>
+          </div>
+          <button type="button" style="float: right;"class="btn btn-secondary" data-toggle="modal" data-target="#quizmodal">Report</button>
+          {% if quiz.created_by == user %}
+            <a class="btn btn-danger" href="{% url 'deletequizpage' quiz.id %}" style="float: right;">Delete</a>
+          {% endif %}
+        </div>
+    </div>
+    <div class="card text-center center" style="margin: auto; width: 50%;">
+      <h5 class="card-header">Scoreboard</h5>
+      <h5 style="float: right;">Quiz solved {{solvedby}} times.</h5>
+      <div class="table-responsive-sm">
+        <table class="table mb-0 bg-white table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Username</th>
+              <th scope="col">Points</th>
+              <th scope="col">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if users %}
+              {% for user in users %}
+                <tr>
+                  <th scope="row">1</th>
+                  <td>{{user.user}}</td>
+                  <td>{{user.points}}</td>
+                  <td>{{user.date}}</td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
     {% if messages %}
       {% for message in messages %}
         <h2>{{message}}</h2>
       {% endfor %}
     {% endif %}
-    <a class="btn btn-primary" href="{% url 'solvequiz' quiz.id%}"
-      >Solve this quiz!</a
-    >
-    <h2>Rate this quiz!</h2>
-    <p class="small text-muted mb-0" id="like-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'like')">Like</p>
-    <p class="mb-0" id=quizrating>{{quiz.rating}}</p>
-    <p class="small text-muted mb-0" id="dislike-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'dislike')">dislike</p>
-    <p class="small mb-0 ms-2" data-toggle="modal" data-target="#quizmodal">Report</p>
-
-    <table>
-      <tr>
-        <th>User</th>
-        <th>Points</th>
-      </tr>
-      {% if users %}
-        {%for user in users%}
-        <tr>
-          <td><a href="{% url 'profile' user.user_id%}">{{user.user}}</a></td>
-          <td>{{user.points}}</td>
-        </tr>
-        {% endfor %}
-      {% else %}
-        <tr>
-          <td>Be the first person to solve this quiz!</td>
-        </tr>
-      {% endif %}
-    </table>
-    {% if quiz.created_by == user %}
-      <a class="btn btn-danger" href="{% url 'deletequizpage' quiz.id %}"
-      >Delete this quiz</a
-    >
-    {% endif %}
     <div class="row d-flex justify-content-center bottom" style="margin-right: 0px;">
-      <div class="col-md-8 col-lg-6">
+      <div class="col-md-8 col-lg-6" style="padding-left: 0px; padding-right: 0px;">
         <div class="card shadow-0 border" style="background-color: #f0f2f5;">
           <div class="card-body p-4">
             <div class="form-outline mb-4">
