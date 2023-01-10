@@ -7,13 +7,13 @@
         <thead class="bg-light">
             <tr>
                 <th colspan="2">
-                    <h3>Quizes containing "{{query}}"</h3>
+                    <h3>{{sort}} Quizes containing "{{query}}"</h3>
                 </th>
                 <th colspan="3">
                     <form action="" method="POST" style="float: right;">
                         {% csrf_token %}
                         <select name="sort" id="sort" class="form-select">
-                            <option value="{{search}}" hidden selected>{{search}}</option>
+                            <option value="{{search}}" hidden selected>{{sort}}</option>
                             <option value="popular">Popular</option>
                             <option value="newest">Newest</option>
                             <option value="oldest">Oldest</option>
@@ -62,19 +62,19 @@
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-center">
                         <li class="page-item {% if not searchdata.has_previous %} disabled {% endif %}">
-                            <a class="page-link" href="?page=1&search={{query}}" tabindex="-1">First</a>
+                            <a class="page-link" href="?page=1&search={{query}}&sort={{sort}}" tabindex="-1">First</a>
                         </li>
                         <li class="page-item {% if not searchdata.has_previous %} disabled {% endif %}">
-                            <a class="page-link" href="{% if searchdata.has_previous %}?page={{ searchdata.previous_page_number }}&search={{query}} {% else %} # {% endif %}" tabindex="-1">Previous</a>
+                            <a class="page-link" href="{% if searchdata.has_previous %}?page={{ searchdata.previous_page_number }}&search={{query}}&sort={{sort}} {% else %} # {% endif %}" tabindex="-1">Previous</a>
                         </li>
 
                         <li class="page-item disabled">
                             <a class="page-link" href="#">Page {{ searchdata.number }} of {{ searchdata.paginator.num_pages }}</a></li>
                         <li class="page-item {% if not searchdata.has_next %} disabled {% endif %}">
-                            <a class="page-link" href="{% if searchdata.has_next %}?page={{ searchdata.next_page_number }}&search={{query}} {% else %} # {% endif %}">Next</a>
+                            <a class="page-link" href="{% if searchdata.has_next %}?page={{ searchdata.next_page_number }}&search={{query}}&sort={{sort}} {% else %} # {% endif %}">Next</a>
                         </li>
                         <li class="page-item {% if not searchdata.has_next %} disabled {% endif %}">
-                            <a class="page-link" href="?page={{ searchdata.paginator.num_pages }}&search={{query}}" tabindex="-1">Last</a>
+                            <a class="page-link" href="?page={{ searchdata.paginator.num_pages }}&search={{query}}&sort={{sort}}" tabindex="-1">Last</a>
                         </li>
                     </ul>
                 </nav>

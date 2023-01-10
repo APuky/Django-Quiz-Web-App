@@ -36,7 +36,7 @@ class CommentReportsAdmin(admin.ModelAdmin):
     readonly_fields = ('reportedby','user','comment','reason')
 
 class QuizReportsAdmin(admin.ModelAdmin):
-    list_display =('reason',)
+    list_display =('quiz','reason',)
     readonly_fields = ('reportedbyuser','user','reason', 'quiz')
 
 

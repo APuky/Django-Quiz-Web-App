@@ -95,10 +95,12 @@ class ReportedQuiz(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     reason = models.CharField(max_length=160, default='Reason')
 
+    def __str__(self):
+        return self.quiz.title
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    bio = models.TextField()
+    bio = models.TextField(default='Hi there! I like to quiz it up!')
 
 
     def __str__(self):
