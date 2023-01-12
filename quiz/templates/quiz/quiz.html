@@ -7,6 +7,11 @@
         <h5 class="card-title">{{quiz.description}}</h5>
         <p class="card-text">Created by : {{quiz.created_by}} on {{quiz.created}}</p>
         <a href="{% url 'solvequiz' quiz.id%}" class="btn btn-primary">Solve</a>
+        {% if messages %}
+          {% for message in messages %}
+            <h3 class="card-title">{{message}}</h3>
+          {% endfor %}
+        {% endif %}
       </div>
         <div class="card-footer">
           <div class="btn-group" role="group" aria-label="Basic example" style="float: left;">
@@ -54,6 +59,25 @@
       <div class="card text-center center mb-4">
         <h5 class="card-header">Scoreboard</h5>
         <h5>You solved this quiz {{userattemptstotal}} times.</h5>
+        <p>Your best attempt:</p>
+        <table class="table mb-0 bg-white table-hover">
+          <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Username</th>
+                <th scope="col">Points</th>
+                <th scope="col">Date</th>
+              </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+                <td>{{bestattempt.user}}</td>
+                <td>{{bestattempt.points}}</td>
+                <td>{{bestattempt.date}}</td>
+            </tr>
+          </tbody>
+        </table>
         <p>Your last 5 attempts:</p>
         <div class="table-responsive-sm">
           <table class="table mb-0 bg-white table-hover">

@@ -19,6 +19,9 @@ import json
 
 from django.forms.models import model_to_dict
 
+
+from .functions import *
+
 def homePage(request):
 	quiz = Quiz.objects.all()
 	context = {'quiz': quiz}
@@ -40,10 +43,13 @@ def quizPage(request,pk):
 	context = {'quiz': quiz, 'users': users, 'solvedby':solvedby, 'commentform':CommentForm, 'page_comments':page_comments}
 
 	if request.user.is_authenticated:
-		userattempts = UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).order_by('date')[:5]
-		userattemptstotal = UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).count()
-		context['userattempts'] = userattempts
-		context['userattemptstotal'] = userattemptstotal
+		if UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).exists():
+			userattempts = UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).order_by('-date')[:5]
+			userattemptstotal = UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).count()
+			bestattempt=UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).order_by('-points')[0]
+			context['userattempts'] = userattempts
+			context['userattemptstotal'] = userattemptstotal
+			context['bestattempt'] = bestattempt
 
 
 	is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -331,10 +337,12 @@ def solveQuizPage(request, pk):
 		score=0
 		
 		for pair in request.POST.items():
+			#pair[0] je question id, pair[1] je choice id
 			if pair[0].isnumeric() and pair[1].isnumeric():
 				question = Question.objects.get(id=int(pair[0]))
 				if question.quiz == quiz:
 					correct_answer=choices.filter(question=question).get(is_right=True)
+					#ako je id pair[1] jednak id točnog odgovora na to pitanje
 					if int(pair[1]) == correct_answer.id:
 						score += 1
 
@@ -363,11 +371,39 @@ def solveQuizPage(request, pk):
 def userProfile(request, pk):
 
 	scores = UserQuizPoints.objects.filter(user=pk).order_by('-date')
+	created_quizes = Quiz.objects.filter(created_by=pk).order_by('-created')
 	profile = Profile.objects.get(user_id=pk)
 
 	paginator = Paginator(scores, 5)
-	page_number = request.GET.get('page')
-	page_obj = paginator.get_page(page_number)
+	page_number = request.GET.get('page1')
+	page_obj1 = paginator.get_page(page_number)
+
+	paginator = Paginator(created_quizes, 5)
+	page_number = request.GET.get('page2')
+	page_obj2 = paginator.get_page(page_number)
+
+	#### For average scores in profile
+	############
+	categories = {
+		'history': 0,
+		'geography':0,
+		'sports':0,
+		'entertainment':0,
+		'music':0,
+		'language':0,
+		'gaming':0,
+		'other':0,
+	}
+	amount_solved = {}
+	for cat in categories:
+		categories[cat] = get_average(cat, scores, Question)
+		amount_solved[cat] = get_amount_of_solved(cat, scores, Quiz)
+	
+	print(amount_solved)
+
+
+ 
+    ###################
 	#If you are accessing your own stats page
 	if request.user.id == int(pk):
 		form = ProfileForm(instance=request.user.profile)
@@ -377,14 +413,15 @@ def userProfile(request, pk):
 
 			if form.is_valid():
 				form.save()
-				messages.add_message(request, messages.SUCCESS, f'Profile successfully updated!')
 				profile = Profile.objects.get(user_id=pk)
 		form = ProfileForm(instance=request.user.profile)
-		context = {'scores':scores, 'form':form, 'stats':profile, 'searchdata':page_obj}
+		context = {'scores':scores, 'form':form, 'stats':profile, 'searchdata':page_obj1, 'createdquizes':page_obj2, 'cat_scores':categories, 'amount_solved':amount_solved}
 		return render(request, 'quiz/profile.html', context)
 
-	context = {'scores':scores, 'stats':profile, 'searchdata':page_obj}
+	context = {'scores':scores, 'stats':profile, 'searchdata':page_obj, 'cat_scores':categories}
 	return render(request, 'quiz/profile.html', context)
+
+
 
 def quizes(request, category):
 	popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)
