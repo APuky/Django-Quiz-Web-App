@@ -39,6 +39,9 @@ class QuizReportsAdmin(admin.ModelAdmin):
     list_display =('quiz','reason',)
     readonly_fields = ('reportedbyuser','user','reason', 'quiz')
 
+class ProfileReportsAdmin(admin.ModelAdmin):
+    list_display =('user','reason',)
+    readonly_fields = ('reportedbyuser','user','reason')
 
 admin.site.register(Quiz, QuizAdmin)
 admin.site.register(Question, QuestionAdmin)
@@ -48,6 +51,8 @@ admin.site.register(QuizComments, CommentsAdmin)
 admin.site.register(Profile)
 admin.site.register(ReportedComments, CommentReportsAdmin)
 admin.site.register(ReportedQuiz, QuizReportsAdmin)
+
+admin.site.register(ReportedProfile, ProfileReportsAdmin)
 
 admin.site.site_url = '/home'
 

@@ -84,3 +84,15 @@ class ProfileForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['bio'].widget.attrs.update({'class': 'form-control'})
+
+
+
+class ProfileReportForm(ModelForm):
+    class Meta:
+        model = ReportedProfile
+        fields = ['reason']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['reason'].widget.attrs.update({'class': 'form-control'})
+

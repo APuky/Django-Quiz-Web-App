@@ -8,7 +8,7 @@
         <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
           <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'profile' user.id %}">User</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'profile' user.username %}">User</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{stats.user}}</li>
           </ol>
         </nav>
@@ -28,10 +28,10 @@
             <h5 class="my-1">Last seen:</h5>
             <p class="text-muted mb-4">{{stats.user.last_login|date:'j/M/Y'}}</p>
             <div class="d-flex justify-content-center mb-2">
-              {% if form %}
+              {% if form_update %}
                 <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#UpdateBioModal">Update Bio</button>
               {% else %}
-                <button type="button" class="btn btn-outline-primary ms-1">Report</button>
+                <button type="button" class="btn btn-outline-primary ms-1" data-toggle="modal" data-target="#ReportProfileModal">Report</button>
               {% endif %}
             </div>
           </div>
@@ -46,6 +46,7 @@
               <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                 
                 <a href="{% url 'quiz' quiz.id %}"><p class="mb-0">{{quiz.title}}</p></a>
+                <p class="mb-0">{{quiz.description|truncatechars:40}}...</p>
               </li>
               {% endfor %}
             </ul>
@@ -161,10 +162,10 @@
             </button>
           </div>
           <div class="modal-body">
-            <form method="post" action="{% url 'profile' user.id %}">
+            <form method="post" action="{% url 'profile' user.username %}">
               <div class="form-group">
                 {% csrf_token %}
-                {{form}}
+                {{form_update}}
               </div>
               <button class="btn btn-primary" type="submit">Update</button>
             </form>
@@ -174,5 +175,32 @@
           </div>
         </div>
       </div>
-    </div>
+</div>
+
+<div class="modal fade" id="ReportProfileModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Report User Profile</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="{% url 'profile' stats.user.username %}">
+              <form>
+              {% csrf_token %}
+                <div class="form-group">
+                  {% csrf_token %}
+                  {{form}}
+                </div>
+              <button class="btn btn-primary" type="submit">Report</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+</div>
 {% endblock %}

@@ -101,8 +101,12 @@ class ReportedQuiz(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(default='Hi there! I like to quiz it up!')
-
-
+    
     def __str__(self):
         return self.user.username
 
+
+class ReportedProfile(models.Model):
+    reportedbyuser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_reported_by', default=1)
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    reason = models.CharField(max_length=160, default='Reason')

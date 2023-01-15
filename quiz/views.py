@@ -368,11 +368,11 @@ def solveQuizPage(request, pk):
 
 
 @login_required
-def userProfile(request, pk):
-
-	scores = UserQuizPoints.objects.filter(user=pk).order_by('-date')
-	created_quizes = Quiz.objects.filter(created_by=pk).order_by('-created')
-	profile = Profile.objects.get(user_id=pk)
+def userProfile(request, username):
+	user_id = User.objects.get(username = username)
+	profile = Profile.objects.get(user=user_id)
+	scores = UserQuizPoints.objects.filter(user=user_id).order_by('-date')
+	created_quizes = Quiz.objects.filter(created_by=user_id).order_by('-created')
 
 	paginator = Paginator(scores, 5)
 	page_number = request.GET.get('page1')
@@ -381,6 +381,7 @@ def userProfile(request, pk):
 	paginator = Paginator(created_quizes, 5)
 	page_number = request.GET.get('page2')
 	page_obj2 = paginator.get_page(page_number)
+
 
 	#### For average scores in profile
 	############
@@ -398,27 +399,41 @@ def userProfile(request, pk):
 	for cat in categories:
 		categories[cat] = get_average(cat, scores, Question)
 		amount_solved[cat] = get_amount_of_solved(cat, scores, Quiz)
-	
-	print(amount_solved)
 
-
- 
     ###################
 	#If you are accessing your own stats page
-	if request.user.id == int(pk):
+	if request.user.username == username:
 		form = ProfileForm(instance=request.user.profile)
 
 		if request.method == 'POST':
-			form = ProfileForm(request.POST, instance=request.user.profile)
+			if 'bio' in request.POST:
+				form = ProfileForm(request.POST, instance=request.user.profile)
 
-			if form.is_valid():
-				form.save()
-				profile = Profile.objects.get(user_id=pk)
-		form = ProfileForm(instance=request.user.profile)
+				if form.is_valid():
+					form.save()
+					profile = Profile.objects.get(user=user_id)
+
+		context = {'scores':scores, 'form_update':form, 'stats':profile, 'searchdata':page_obj1, 'createdquizes':page_obj2, 'cat_scores':categories, 'amount_solved':amount_solved}
+		return render(request, 'quiz/profile.html', context)
+
+	else:
+		if request.method == 'POST':
+			if 'reason' in request.POST:
+				form = ProfileReportForm(request.POST)
+				if form.is_valid():
+					report = form.save(commit=False)
+					report.reportedbyuser = request.user
+					report.user = user_id
+					report.save()
+		else:
+			form = ProfileReportForm()
+
+
+
 		context = {'scores':scores, 'form':form, 'stats':profile, 'searchdata':page_obj1, 'createdquizes':page_obj2, 'cat_scores':categories, 'amount_solved':amount_solved}
 		return render(request, 'quiz/profile.html', context)
 
-	context = {'scores':scores, 'stats':profile, 'searchdata':page_obj, 'cat_scores':categories}
+	context = {'scores':scores, 'stats':profile, 'form':form, 'searchdata':page_obj1, 'createdquizes':page_obj2, 'cat_scores':categories, 'amount_solved':amount_solved}
 	return render(request, 'quiz/profile.html', context)
 
 
@@ -439,9 +454,9 @@ def quizes(request, category):
 		elif sort_by == 'oldest':
 			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('userquizpoints'))
 			context={'quizes':oldest, 'search':'Oldest'}
-		elif sort_by == 'easiest':
-			easiest=Quiz.objects.filter(category=category).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
-			context={'quizes':easiest, 'search':'Easiest'}
+		elif sort_by == 'rating':
+			rating=Quiz.objects.filter(category=category).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			context={'quizes':rating, 'search':'Best Rated'}
 		#Django paginator je salje GET request svaki put kada se stranica promijeni, što znači da se onda queryset defaulta na popularne kvizove svaki put.
 		#Ovaj ispod kod iz get requesta izvlači "search" i po tome onda slaže queryset
 		#"search" je dodan u urlu, pogledaj u templateu u navigaciji kod paginacije
@@ -458,9 +473,9 @@ def quizes(request, category):
 			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('userquizpoints'))
 			context={'quizes':oldest, 'search':'Oldest'}
 
-		elif request.GET.get('search') == 'Easiest':
-			easiest=Quiz.objects.filter(category=category).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
-			context={'quizes':easiest, 'search':'Easiest'}
+		elif request.GET.get('search') == 'Best Rated':
+			rating=Quiz.objects.filter(category=category).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			context={'quizes':rating, 'search':'Best Rated'}
 	
 	
 	paginator = Paginator(context['quizes'],5)
@@ -486,9 +501,9 @@ def quizSearch(request):
 		elif sort_by == 'oldest':
 			oldest=Quiz.objects.filter(title__icontains=search).order_by('created').annotate(count=Count('userquizpoints'))
 			context={'quizes':oldest, 'sort':'Oldest'}
-		elif sort_by == 'easiest':
-			easiest=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
-			context={'quizes':easiest, 'sort':'Easiest'}
+		elif sort_by == 'rating':
+			rating=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			context={'quizes':rating, 'sort':'Best Rated'}
    # Ovo ima veze sa URLovima u html templateu, iz urla čitam te podatke
 	if request.method == 'GET':
 		if request.GET.get('sort') == 'Newest':
@@ -499,9 +514,9 @@ def quizSearch(request):
 			oldest=Quiz.objects.filter(title__icontains=search).order_by('created').annotate(count=Count('userquizpoints'))
 			context={'quizes':oldest, 'sort':'Oldest'}
 			
-		elif request.GET.get('sort') == 'Easiest':
-			easiest=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
-			context={'quizes':easiest, 'sort':'Easiest'}
+		elif request.GET.get('sort') == 'Best Rated':
+			rating=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			context={'quizes':rating, 'sort':'Best Rated'}
 
 	paginator = Paginator(context['quizes'], 5)
 	page_number = request.GET.get('page')

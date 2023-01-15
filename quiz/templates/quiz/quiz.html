@@ -45,7 +45,7 @@
               {% for user in users %}
                 <tr>
                   <th scope="row">1</th>
-                  <td><a href="{% url 'profile' user.user.id %}">{{user.user}}</a></td>
+                  <td><a href="{% url 'profile' user.user.username %}">{{user.user}}</a></td>
                   <td>{{user.points}}</td>
                   <td>{{user.date}}</td>
                 </tr>
@@ -134,7 +134,7 @@
                   <div class="d-flex flex-row align-items-center">
                     <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(32).webp" alt="avatar" width="25"
                         height="25" />
-                    <a href="{% url 'profile' comment.user.id%}"><p class="small mb-0 ms-2">{{comment.user}}</p></a>
+                    <a href="{% url 'profile' comment.user.username%}"><p class="small mb-0 ms-2">{{comment.user}}</p></a>
                   </div>
                   <div class="d-flex flex-row align-items-center">
                     {% if user.is_authenticated %}
