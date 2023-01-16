@@ -19,8 +19,15 @@
       <div class="col-lg-4">
         <div class="card mb-4">
           <div class="card-body text-center">
-            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp" alt="avatar"
+            <img src="{{stats.avatar.url}}" alt="avatar"
               class="rounded-circle img-fluid" style="width: 150px;">
+            {% if avatar_form %}
+              <form method="post" action="{% url 'profile' user.username %}" enctype="multipart/form-data">
+                {%csrf_token%}
+                {{avatar_form}}
+                <button class="btn btn-primary" type="submit">Update</button>
+              </form>
+            {% endif %}
             <h1 class="my-3">{{stats.user}}</h1>
             <h3 class="my-3">{{stats.bio}}</h3>
             <h5 class="my-1">Date joined:</h5>

@@ -96,3 +96,11 @@ class ProfileReportForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['reason'].widget.attrs.update({'class': 'form-control'})
 
+class ProfileAvatarForm(ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['avatar']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['avatar'].widget.attrs.update({'class': 'form-control'})

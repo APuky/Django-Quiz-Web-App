@@ -70,7 +70,6 @@ class QuizComments(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField(default=0)
 
-
     def __str__(self):
         return self.comment
 
@@ -100,8 +99,9 @@ class ReportedQuiz(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    avatar = models.ImageField(upload_to='users', default='default.png')
     bio = models.TextField(default='Hi there! I like to quiz it up!')
-    
+
     def __str__(self):
         return self.user.username
 

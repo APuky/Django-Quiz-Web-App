@@ -128,11 +128,11 @@
           {% for comment in page_comments %}
             <div class="card mb-4">
               <div class="card-body">
-                <p>{{comment.comment}}</p>
+                <p class="lead">{{comment.comment}}</p>
 
                 <div class="d-flex justify-content-between">
                   <div class="d-flex flex-row align-items-center">
-                    <img src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(32).webp" alt="avatar" width="25"
+                    <img src="{{comment.avatar.url}}" alt="avatar" width="25"
                         height="25" />
                     <a href="{% url 'profile' comment.user.username%}"><p class="small mb-0 ms-2">{{comment.user}}</p></a>
                   </div>

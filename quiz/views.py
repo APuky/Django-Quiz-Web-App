@@ -36,6 +36,11 @@ def quizPage(request,pk):
 	solvedby = UserQuizPoints.objects.filter(quiz=pk).count()
 	comments = QuizComments.objects.filter(quiz=pk).order_by('-created')
 
+	##Add the avatar image of the user to the comments queryset
+	for comment in comments:
+		data = Profile.objects.get(user=comment.user)
+		comment.avatar = data.avatar
+
 	paginator = Paginator(comments, 5)
 	page_number = request.GET.get('page')
 	page_comments = paginator.get_page(page_number)
@@ -403,6 +408,7 @@ def userProfile(request, username):
     ###################
 	#If you are accessing your own stats page
 	if request.user.username == username:
+		image_form = ProfileAvatarForm()
 		form = ProfileForm(instance=request.user.profile)
 
 		if request.method == 'POST':
@@ -412,8 +418,15 @@ def userProfile(request, username):
 				if form.is_valid():
 					form.save()
 					profile = Profile.objects.get(user=user_id)
+			else:
+				form = ProfileAvatarForm(request.POST, request.FILES)
+				if form.is_valid():
+					## Form is filled with the user instance / It only updates the avatar field, without it it would either try to create a new instance or you would have a unique constraint
+					update = ProfileAvatarForm(request.POST, request.FILES, instance = profile)
+					update.save()
 
-		context = {'scores':scores, 'form_update':form, 'stats':profile, 'searchdata':page_obj1, 'createdquizes':page_obj2, 'cat_scores':categories, 'amount_solved':amount_solved}
+
+		context = {'scores':scores, 'form_update':form, 'avatar_form':image_form, 'stats':profile, 'searchdata':page_obj1, 'createdquizes':page_obj2, 'cat_scores':categories, 'amount_solved':amount_solved}
 		return render(request, 'quiz/profile.html', context)
 
 	else:
