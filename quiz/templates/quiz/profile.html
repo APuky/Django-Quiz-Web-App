@@ -19,14 +19,15 @@
       <div class="col-lg-4">
         <div class="card mb-4">
           <div class="card-body text-center">
-            <img src="{{stats.avatar.url}}" alt="avatar"
+            {% if stats.avatar %}
+              <img src="{{stats.avatar.url}}" alt="avatar"
               class="rounded-circle img-fluid" style="width: 150px;">
+            {% else %}
+              <img src="/static/quiz/default.png" alt="avatar"
+              class="rounded-circle img-fluid" style="width: 150px;">
+            {% endif %}
             {% if avatar_form %}
-              <form method="post" action="{% url 'profile' user.username %}" enctype="multipart/form-data">
-                {%csrf_token%}
-                {{avatar_form}}
-                <button class="btn btn-primary" type="submit">Update</button>
-              </form>
+            <div><button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#UpdateAvatarModal">Update Avatar</button></div>
             {% endif %}
             <h1 class="my-3">{{stats.user}}</h1>
             <h3 class="my-3">{{stats.bio}}</h3>
@@ -203,6 +204,29 @@
                 </div>
               <button class="btn btn-primary" type="submit">Report</button>
             </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+</div>
+
+<div class="modal fade" id="UpdateAvatarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Update Profile Avatar</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <form method="post" action="{% url 'profile' user.username %}" enctype="multipart/form-data">
+                {%csrf_token%}
+                {{avatar_form}}
+                <button class="btn btn-primary" type="submit">Update</button>
+              </form>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

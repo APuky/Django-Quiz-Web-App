@@ -23,8 +23,10 @@ from django.forms.models import model_to_dict
 from .functions import *
 
 def homePage(request):
-	quiz = Quiz.objects.all()
-	context = {'quiz': quiz}
+	popular_quizes = Quiz.objects.all().annotate(count=Count('userquizpoints')).order_by('-count')[:5]
+	newest_quizes = Quiz.objects.all().order_by('-created')[:5]
+	best_rated_quizes = Quiz.objects.all().annotate(rate=Avg('userquizpoints__points')).order_by('-rating')[:5]
+	context = {'popular': popular_quizes, 'newest':newest_quizes, 'best':best_rated_quizes}
 	return render(request, 'quiz/home.html', context)
 
 
@@ -211,14 +213,14 @@ def userRegister(request):
 			user = form.save()
 			messages.info(request, "Account successfuly created! Please login with your credentials.")
 			return redirect("login")
+
 	context = {'form':form}
 	return render(request, 'quiz/registration.html', context)
 
 
 def userLogin(request):
 	if request.method == "POST":
-		data=request.POST
-		form = AuthenticationForm(request, data)
+		form = LoginForm(request.POST)
 		if form.is_valid():
 			username = form.cleaned_data.get('username')
 			password = form.cleaned_data.get('password')
@@ -228,10 +230,10 @@ def userLogin(request):
 				messages.info(request, f"You are now logged in as {username}.")
 				return redirect("home")
 			else:
-				messages.error(request,"This user does not exist.")
+				messages.error(request,"Invalid username or password.")
 		else:
 			messages.error(request,"Invalid username or password.")
-	form = AuthenticationForm()
+	form = LoginForm()
 	return render(request, "quiz/login.html", context={"login_form":form})
 
 def userLogout(request):
@@ -313,19 +315,17 @@ def deleteQuizPage(request, pk):
 	if request.user == quiz.created_by:
 		return render(request, 'quiz/deletequiz.html', context={'quiz':quiz})
 	else:
-		#return redirect('quiz', pk=quiz.id)
-		return redirect('https://www.youtube.com/watch?v=Tf3uK2RGU2c')
-	print(quiz.created_by)
+		return redirect('quiz', pk=quiz.id)
 	
 def deleteQuiz(request,pk):
 	quiz=Quiz.objects.get(id=pk)
 	if request.user == quiz.created_by:
 		quiz.delete()
-		messages.add_message(request, messages.SUCCESS, 'You successfully deleted your quiz!')
+		messages.add_message(request, messages.SUCCESS, 'Quiz successfully deleted.')
 		return redirect('home')
 	else:
-		#return redirect('quiz', pk=quiz.id)
-		return redirect('https://www.youtube.com/watch?v=Tf3uK2RGU2c')
+		return redirect('quiz', pk=quiz.id)
+
 
 def solveQuizPage(request, pk):
 
@@ -500,6 +500,8 @@ def quizes(request, category):
 
 def quizSearch(request):
 	search=(request.GET.get("search"))
+	if search == None :
+		search = ''
 	quizes=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(title__icontains=search)
 	context={'quizes':quizes, 'sort':'Popular'}
 	

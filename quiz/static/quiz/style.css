@@ -122,12 +122,21 @@ body{
   padding-bottom: 10px;
 }
 
+.center-25 {
+  margin: auto;
+  width: 25%;
+}
+
 @media screen and (max-width: 991px) {
     .centered{
       width: 100%;
     }
 
     .center{
+      width: 100%;
+    }
+
+    .center-25{
       width: 100%;
     }
 

@@ -15,10 +15,15 @@
       </div>
         <div class="card-footer">
           <div class="btn-group" role="group" aria-label="Basic example" style="float: left;">
-            <button type="button" class="btn btn-primary" id="like-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'like')">Like</button>
-            <button type="button" class="btn btn-secondary btn-lg" id="quizrating" disabled>{{quiz.rating}}</button>
-            
-            <button type="button" class="btn btn-primary" id="dislike-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'dislike')">Dislike</button>
+            {% if user.is_authenticated %}
+              <button type="button" class="btn btn-primary" id="like-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'like')">Like</button>
+              <button type="button" class="btn btn-secondary btn-lg" id="quizrating" disabled>{{quiz.rating}}</button>
+              
+              <button type="button" class="btn btn-primary" id="dislike-{{quiz.id}}" onclick="quizvoting('{{quiz.id}}', 'dislike')">Dislike</button>
+            {% else %}
+              <button type="button" disabled class="btn btn-primary">Likes</button>
+              <button type="button" class="btn btn-secondary btn-lg" id="quizrating" disabled>{{quiz.rating}}</button>
+            {% endif %}
           </div>
           <button type="button" style="float: right;"class="btn btn-secondary" data-toggle="modal" data-target="#quizmodal">Report</button>
           {% if quiz.created_by == user %}
@@ -143,6 +148,9 @@
                       <p class="mb-0 {% if comment.rating >= 0 %}text-primary{% else %}text-danger{% endif %} large" id=comment-{{comment.id}}>{{comment.rating}}</p>
                       <p class="small text-muted mb-0" id="dislike-{{comment.id}}" onclick="commentvoting('{{comment.id}}', 'dislike')">Dislike</p>
                       <p class="small mb-0 ms-2" data-toggle="modal" data-target="#commentmodal" onclick="addcomment('{{comment.id}}')">Report</p>
+                    {% else %}
+                    <p class="mb-0">Likes</p>
+                    <p class="mb-0 {% if comment.rating >= 0 %}text-primary{% else %}text-danger{% endif %} large" id=comment-{{comment.id}}>{{comment.rating}}</p>
                     {% endif %}
                   </div>
                 </div>

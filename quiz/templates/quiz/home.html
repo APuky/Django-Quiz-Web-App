@@ -2,7 +2,96 @@
 {% load static %}
 {% block title %}Home{% endblock %}
 {% block content %}
-   
+{% for message in messages %}
+    <div class="alert alert-primary">
+        {{message}}
+    </div>
+{% endfor %}
+<div class="p-5 text-center bg-primary text-white">
+    <h1 class="mb-3">Welcome to QuizIT!</h1>
+    <h4 class="mb-3 text-dark">Starting solving quizes down below:</h4>
+    <a class="btn btn-primary" href="{% url 'quizsearch' %}" role="button">Or search for a specific quiz</a>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div class="card text-center mt-3">
+        <div class="card-header">
+            Featured
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Best Rated Quizes</h5>
+            <hr>
+             {% for quiz in best%}
+             <img
+                    src="/static/quiz/images/{{quiz.category}}.png"
+                    alt=""
+                    style="width: 45px; height: 45px"
+                    class="rounded-circle"
+                    />
+            <a href="{% url 'quiz' quiz.id %}"><p class="mb-0 card-text">{{quiz}}</p></a>
+            <p class="card-text">{{quiz.description}}</p>
+            <hr>
+            {% endfor %}
+        </div>
+        <div class="card-footer text-muted">
+            <a href="{% url 'quizsearch' %}?sort=Best Rated" class="btn btn-primary">All Best Rated Quizes</a>
+        </div>
+        </div>
+    </div>
+    <div class="col">
+      <div class="card text-center  mt-3">
+        <div class="card-header">
+            Featured
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Most Popular Quizes</h5>
+            <hr>
+             {% for quiz in popular%}
+             <img
+                    src="/static/quiz/images/{{quiz.category}}.png"
+                    alt=""
+                    style="width: 45px; height: 45px"
+                    class="rounded-circle"
+                    />
+            <a href="{% url 'quiz' quiz.id %}"><p class="mb-0 card-text">{{quiz}}</p></a>
+            <p class="card-text">{{quiz.description}}</p>
+            <hr>
+            {% endfor %}
+        </div>
+        <div class="card-footer text-muted">
+            <a href="{% url 'quizsearch' %}?sort=Popular" class="btn btn-primary">All Most Popular Quizes</a>
+        </div>
+        </div>
+    </div>
+    <div class="col">
+      <div class="card text-center mt-3">
+        <div class="card-header">
+            Featured
+        </div>
+       <div class="card-body">
+            <h5 class="card-title">Newly Made Quizes</h5>
+            <hr>
+             {% for quiz in newest%}
+             <img
+                    src="/static/quiz/images/{{quiz.category}}.png"
+                    alt=""
+                    style="width: 45px; height: 45px"
+                    class="rounded-circle"
+                    />
+            <a href="{% url 'quiz' quiz.id %}"><p class="mb-0 card-text">{{quiz}}</p></a>
+            <p class="card-text">{{quiz.description}}</p>
+            <hr>
+            {% endfor %}
+        </div>
+        <div class="card-footer text-muted">
+            <a href="{% url 'quizsearch' %}?sort=Newest" class="btn btn-primary">All Newest Quizes</a>
+        </div>
+        </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 

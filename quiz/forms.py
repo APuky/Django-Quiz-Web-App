@@ -13,10 +13,26 @@ class CreateNewUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
+
         help_texts = {
-            'username': None,
-            'password': None,
+            'username':'Minimum of 5 and Maximum of 20 Characters.'
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control', 'maxlength': 20, 'minlength': 5})
+        self.fields['email'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=150, label='Username')
+    password = forms.CharField(max_length=150, widget=forms.PasswordInput, label='Password')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control', 'placeholder':'username'})
+        self.fields['password'].widget.attrs.update({'class': 'form-control', 'placeholder':'password'})
 
 
 class CreateQuizForm(ModelForm):

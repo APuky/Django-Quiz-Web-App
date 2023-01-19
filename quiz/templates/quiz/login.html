@@ -2,22 +2,39 @@
 {%load crispy_forms_tags %}
 {% block title %}Login{% endblock %}
 {% block content %}
-    <div
-      style="max-width: 500px; margin: auto;"
-      class="shadow-lg p-3 mb-5 bg-black rounded centered"
-    >
-      <h1>Login</h1>
-      <form method="POST">
-        {% csrf_token %} {{ login_form|crispy }}
+<div class="center-25 card text-center mt-3">
+  <div class="card-header text-white bg-primary">
+    Login
+  </div>
+  <div class="card-body">
+    <form method="POST">
+      {% csrf_token %}
+      {% for message in messages %}
+        {% if message.tags == "error" %}
+        <div class="alert alert-danger">
+          {{message}}
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+          {{message}}
+        </div>
+        {% endif %}
+      {% endfor %}
+      <div class="form-outline mb-4">
+        {{login_form.username.label_tag}}
+        {{login_form.username}}
+      </div>
+      <div class="form-outline mb-4">
+        {{login_form.password.label_tag}}
+        {{login_form.password}}
+      </div>
         <button class="btn btn-primary" type="submit">Login</button>
-      </form>
-      {% if messages %}
-        {% for message in messages %}
-          <p class="text-center">{{message}}</p>
-        {% endfor %}
-      {% endif %}
-      <p class="text-center">
+    </form>
+  </div>
+  <div class="card-footer text-muted">
+    <p class="text-center">
         Don't have an account? <a href="/register">Create an account</a>.
       </p>
-    </div>
+  </div>
+</div>
 {% endblock %}

@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="{% static 'quiz/style.css' %}">
 </head>
 <body>
+  <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <a class="navbar-brand mt-2 mt-lg-0" href="#">
         <img
@@ -70,11 +71,19 @@
           {% endif %}
         </ul>
       </div>
+      </header>
     </nav>
-    </header>
+    <main>
     {% block content %}
 
     {% endblock %}
+    </main>
+    <footer class="bg-dark text-center text-lg-start mt-3 static-bottom">
+      <div class="text-center p-2 text-white" style="background-color: rgba(0, 0, 0, 0.2);">
+        © 2022 Copyright:
+        <a class="text-primary" href="https://github.com/APuky">AP</a>
+      </div>
+    </footer>
 
     <script src="{% static 'quiz/script.js' %}"></script> 
     <script
