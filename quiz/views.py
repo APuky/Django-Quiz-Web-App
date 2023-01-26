@@ -69,10 +69,10 @@ def quizPage(request,pk):
 			if 'commentid' in updated_values:
 				comment = QuizComments.objects.get(id = int(updated_values['commentid']))
 				user = comment.user
-
 				report = ReportedComments(reportedby = request.user, user = user,comment = comment, reason = updated_values['reason'])
 				report.save()
 				return JsonResponse({'status': 'OK'}, status=200)
+				
 			else:
 				report = ReportedQuiz(reportedbyuser = request.user, user = quiz.created_by, quiz = quiz, reason = updated_values['reason'])
 				report.save()

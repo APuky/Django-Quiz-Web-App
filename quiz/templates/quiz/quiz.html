@@ -25,13 +25,15 @@
               <button type="button" class="btn btn-secondary btn-lg" id="quizrating" disabled>{{quiz.rating}}</button>
             {% endif %}
           </div>
+          {% if user.is_authenticated %}
           <button type="button" style="float: right;"class="btn btn-secondary" data-toggle="modal" data-target="#quizmodal">Report</button>
+          {% endif %}
           {% if quiz.created_by == user %}
             <a class="btn btn-danger" href="{% url 'deletequizpage' quiz.id %}" style="float: right;">Delete</a>
           {% endif %}
         </div>
     </div>
-    <div class="card text-center center mb-4">
+    <div class="card text-center center-50 mb-4">
       <h5 class="card-header">Scoreboard</h5>
       <h5>Quiz solved {{solvedby}} times.</h5>
       <p>Last 10 attempts:</p>
@@ -39,7 +41,6 @@
         <table class="table mb-0 bg-white table-hover">
           <thead>
             <tr>
-              <th scope="col">#</th>
               <th scope="col">Username</th>
               <th scope="col">Points</th>
               <th scope="col">Date</th>
@@ -49,7 +50,6 @@
             {% if users %}
               {% for user in users %}
                 <tr>
-                  <th scope="row">1</th>
                   <td><a href="{% url 'profile' user.user.username %}">{{user.user}}</a></td>
                   <td>{{user.points}}</td>
                   <td>{{user.date}}</td>
@@ -61,14 +61,13 @@
       </div>
     </div>
     {% if user.is_authenticated %}
-      <div class="card text-center center mb-4">
+      <div class="card text-center center-50 mb-4">
         <h5 class="card-header">Scoreboard</h5>
         <h5>You solved this quiz {{userattemptstotal}} times.</h5>
         <p>Your best attempt:</p>
         <table class="table mb-0 bg-white table-hover">
           <thead>
               <tr>
-                <th scope="col">#</th>
                 <th scope="col">Username</th>
                 <th scope="col">Points</th>
                 <th scope="col">Date</th>
@@ -76,7 +75,6 @@
           </thead>
           <tbody>
             <tr>
-              <th scope="row">1</th>
                 <td>{{bestattempt.user}}</td>
                 <td>{{bestattempt.points}}</td>
                 <td>{{bestattempt.date}}</td>
@@ -88,7 +86,6 @@
           <table class="table mb-0 bg-white table-hover">
             <thead>
               <tr>
-                <th scope="col">#</th>
                 <th scope="col">Username</th>
                 <th scope="col">Points</th>
                 <th scope="col">Date</th>
@@ -98,7 +95,6 @@
               {% if userattempts %}
                 {% for user in userattempts %}
                   <tr>
-                    <th scope="row">1</th>
                     <td>{{user.user}}</td>
                     <td>{{user.points}}</td>
                     <td>{{user.date}}</td>

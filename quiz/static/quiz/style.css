@@ -88,6 +88,12 @@
   margin: auto;
   width: 75%;
 }
+
+.center-50{
+  margin: auto;
+  width: 50%;
+}
+
 body{
   background-image: url("images/question.jpg");
   background-color: rgb(39, 39, 39);
@@ -140,4 +146,7 @@ body{
       width: 100%;
     }
 
+    .center-50{
+      width: 100%;
+    }
 }
