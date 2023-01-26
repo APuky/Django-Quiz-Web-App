@@ -23,9 +23,9 @@ from django.forms.models import model_to_dict
 from .functions import *
 
 def homePage(request):
-	popular_quizes = Quiz.objects.all().annotate(count=Count('userquizpoints')).order_by('-count')[:5]
+	popular_quizes = Quiz.objects.all().annotate(count=Count('user_quiz_points')).order_by('-count')[:5]
 	newest_quizes = Quiz.objects.all().order_by('-created')[:5]
-	best_rated_quizes = Quiz.objects.all().annotate(rate=Avg('userquizpoints__points')).order_by('-rating')[:5]
+	best_rated_quizes = Quiz.objects.all().annotate(rate=Avg('user_quiz_points__points')).order_by('-rating')[:5]
 	context = {'popular': popular_quizes, 'newest':newest_quizes, 'best':best_rated_quizes}
 	return render(request, 'quiz/home.html', context)
 
@@ -34,9 +34,9 @@ def homePage(request):
 def quizPage(request,pk):
 	quiz = Quiz.objects.get(id=pk)
 	name = quiz.title
-	users = UserQuizPoints.objects.filter(quiz__title=name).order_by('-date')[:10]
-	solvedby = UserQuizPoints.objects.filter(quiz=pk).count()
-	comments = QuizComments.objects.filter(quiz=pk).order_by('-created')
+	users = User_quiz_points.objects.filter(quiz__title=name).order_by('-date')[:10]
+	solvedby = User_quiz_points.objects.filter(quiz=pk).count()
+	comments = Quiz_comment.objects.filter(quiz=pk).order_by('-created')
 
 	##Add the avatar image of the user to the comments queryset
 	for comment in comments:
@@ -50,10 +50,10 @@ def quizPage(request,pk):
 	context = {'quiz': quiz, 'users': users, 'solvedby':solvedby, 'commentform':CommentForm, 'page_comments':page_comments}
 
 	if request.user.is_authenticated:
-		if UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).exists():
-			userattempts = UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).order_by('-date')[:5]
-			userattemptstotal = UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).count()
-			bestattempt=UserQuizPoints.objects.filter(quiz__title=name).filter(user=request.user).order_by('-points')[0]
+		if User_quiz_points.objects.filter(quiz__title=name).filter(user=request.user).exists():
+			userattempts = User_quiz_points.objects.filter(quiz__title=name).filter(user=request.user).order_by('-date')[:5]
+			userattemptstotal = User_quiz_points.objects.filter(quiz__title=name).filter(user=request.user).count()
+			bestattempt=User_quiz_points.objects.filter(quiz__title=name).filter(user=request.user).order_by('-points')[0]
 			context['userattempts'] = userattempts
 			context['userattemptstotal'] = userattemptstotal
 			context['bestattempt'] = bestattempt
@@ -67,19 +67,19 @@ def quizPage(request,pk):
 			updated_values = data.get('payload')
 			#ako ima commentid onda posalji kao comment report, ako ne onda je quiz report
 			if 'commentid' in updated_values:
-				comment = QuizComments.objects.get(id = int(updated_values['commentid']))
+				comment = Quiz_comment.objects.get(id = int(updated_values['commentid']))
 				user = comment.user
-				report = ReportedComments(reportedby = request.user, user = user,comment = comment, reason = updated_values['reason'])
+				report = Reported_comment(reportedby = request.user, user = user,comment = comment, reason = updated_values['reason'])
 				report.save()
 				return JsonResponse({'status': 'OK'}, status=200)
 				
 			else:
-				report = ReportedQuiz(reportedbyuser = request.user, user = quiz.created_by, quiz = quiz, reason = updated_values['reason'])
+				report = Reported_quiz(reportedbyuser = request.user, user = quiz.created_by, quiz = quiz, reason = updated_values['reason'])
 				report.save()
 				return JsonResponse({'status': 'OK'}, status=200)
 
 		if request.method == 'GET':
-			comments = list(QuizComments.objects.filter(quiz=quiz).values())
+			comments = list(Quiz_comment.objects.filter(quiz=quiz).values())
 			#Model_to_dict je potreban zbog JSON
 			return JsonResponse({'comments': comments, 'quiz':model_to_dict(quiz)})
 
@@ -92,19 +92,19 @@ def quizPage(request,pk):
 				comment = comments.get(id=updated_values['commentid'])
 
 				#Check if the user already upvoted/downvoted and block him from doing it again
-				if not UserCommentRelation.objects.filter(user = request.user, comment = comment).exists():
+				if not User_comment_relation.objects.filter(user = request.user, comment = comment).exists():
 					if like == 'like':
 						comment.rating+=1
-						usercomment = UserCommentRelation(user = request.user, comment = comment, like = 1)
+						usercomment = User_comment_relation(user = request.user, comment = comment, like = 1)
 						usercomment.save()
 						comment.save()
 					else:
 						comment.rating-=1
-						usercomment = UserCommentRelation(user = request.user, comment = comment, like = -1)
+						usercomment = User_comment_relation(user = request.user, comment = comment, like = -1)
 						usercomment.save()
 						comment.save()
 				else:
-					currentcomment = UserCommentRelation.objects.get(user = request.user, comment = comment)
+					currentcomment = User_comment_relation.objects.get(user = request.user, comment = comment)
 					if like == 'like':
 						if currentcomment.like == 0:
 							comment.rating += 1
@@ -139,19 +139,19 @@ def quizPage(request,pk):
 							currentcomment.like = 0
 							currentcomment.save()
 			else:
-				if not UserQuizRelation.objects.filter(user = request.user, quiz = quiz).exists():
+				if not User_quiz_relation.objects.filter(user = request.user, quiz = quiz).exists():
 					if like == 'like':
 						quiz.rating+=1
-						userquizrating = UserQuizRelation(user = request.user, quiz = quiz, like = 1)
+						userquizrating = User_quiz_relation(user = request.user, quiz = quiz, like = 1)
 						userquizrating.save()
 						quiz.save()
 					else:
 						quiz.rating-=1
-						userquizrating = UserQuizRelation(user = request.user, quiz = quiz, like = -1)
+						userquizrating = User_quiz_relation(user = request.user, quiz = quiz, like = -1)
 						userquizrating.save()
 						quiz.save()
 				else:
-					userquizrating = UserQuizRelation.objects.get(user = request.user, quiz = quiz)
+					userquizrating = User_quiz_relation.objects.get(user = request.user, quiz = quiz)
 					if like == 'like':
 						if userquizrating.like == 0:
 							quiz.rating += 1
@@ -352,7 +352,7 @@ def solveQuizPage(request, pk):
 						score += 1
 
 		if request.user.is_authenticated:
-			userscore = UserQuizPoints(user=request.user, quiz=quiz, points=score)
+			userscore = User_quiz_points(user=request.user, quiz=quiz, points=score)
 			userscore.save()
 		messages.add_message(request, messages.SUCCESS, f'You scored {score}/{questions.count()} points!')
 
@@ -376,7 +376,7 @@ def solveQuizPage(request, pk):
 def userProfile(request, username):
 	user_id = User.objects.get(username = username)
 	profile = Profile.objects.get(user=user_id)
-	scores = UserQuizPoints.objects.filter(user=user_id).order_by('-date')
+	scores = User_quiz_points.objects.filter(user=user_id).order_by('-date')
 	created_quizes = Quiz.objects.filter(created_by=user_id).order_by('-created')
 
 	paginator = Paginator(scores, 5)
@@ -452,23 +452,23 @@ def userProfile(request, username):
 
 
 def quizes(request, category):
-	popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)
+	popular=Quiz.objects.annotate(count=Count('user_quiz_points')).order_by('-count').filter(category=category)
 	context={'quizes':popular, 'search':'Popular'}
 	
 	if request.method == 'POST':
 		sort_by=request.POST['sort']
 		print(request.POST['sort'])
 		if sort_by == 'popular':
-			popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(category=category)
+			popular=Quiz.objects.annotate(count=Count('user_quiz_points')).order_by('-count').filter(category=category)
 			context={'quizes':popular, 'search':'Popular'}
 		elif sort_by == 'newest':
-			newest=Quiz.objects.filter(category=category).order_by('-created').annotate(count=Count('userquizpoints'))
+			newest=Quiz.objects.filter(category=category).order_by('-created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':newest, 'search':'Newest'}
 		elif sort_by == 'oldest':
-			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('userquizpoints'))
+			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':oldest, 'search':'Oldest'}
 		elif sort_by == 'rating':
-			rating=Quiz.objects.filter(category=category).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			rating=Quiz.objects.filter(category=category).annotate(rate=Avg('user_quiz_points__points')).order_by('-rating').annotate(count=Count('user_quiz_points'))
 			context={'quizes':rating, 'search':'Best Rated'}
 		#Django paginator je salje GET request svaki put kada se stranica promijeni, što znači da se onda queryset defaulta na popularne kvizove svaki put.
 		#Ovaj ispod kod iz get requesta izvlači "search" i po tome onda slaže queryset
@@ -479,15 +479,15 @@ def quizes(request, category):
 	if request.method == 'GET':
 
 		if request.GET.get('search') == 'Newest':
-			newest=Quiz.objects.filter(category=category).order_by('-created').annotate(count=Count('userquizpoints'))
+			newest=Quiz.objects.filter(category=category).order_by('-created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':newest, 'search':'Newest'}
 			
 		elif request.GET.get('search') == 'Oldest':
-			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('userquizpoints'))
+			oldest=Quiz.objects.filter(category=category).order_by('created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':oldest, 'search':'Oldest'}
 
 		elif request.GET.get('search') == 'Best Rated':
-			rating=Quiz.objects.filter(category=category).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			rating=Quiz.objects.filter(category=category).annotate(rate=Avg('user_quiz_points__points')).order_by('-rating').annotate(count=Count('user_quiz_points'))
 			context={'quizes':rating, 'search':'Best Rated'}
 	
 	
@@ -502,35 +502,35 @@ def quizSearch(request):
 	search=(request.GET.get("search"))
 	if search == None :
 		search = ''
-	quizes=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(title__icontains=search)
+	quizes=Quiz.objects.annotate(count=Count('user_quiz_points')).order_by('-count').filter(title__icontains=search)
 	context={'quizes':quizes, 'sort':'Popular'}
 	
 	if request.method == 'POST':
 		sort_by=request.POST['sort']
 		if sort_by == 'popular':
-			popular=Quiz.objects.annotate(count=Count('userquizpoints')).order_by('-count').filter(title__icontains=search)
+			popular=Quiz.objects.annotate(count=Count('user_quiz_points')).order_by('-count').filter(title__icontains=search)
 			context={'quizes':popular, 'sort':'Popular'}
 		elif sort_by == 'newest':
-			newest=Quiz.objects.filter(title__icontains=search).order_by('-created').annotate(count=Count('userquizpoints'))
+			newest=Quiz.objects.filter(title__icontains=search).order_by('-created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':newest, 'sort':'Newest'}
 		elif sort_by == 'oldest':
-			oldest=Quiz.objects.filter(title__icontains=search).order_by('created').annotate(count=Count('userquizpoints'))
+			oldest=Quiz.objects.filter(title__icontains=search).order_by('created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':oldest, 'sort':'Oldest'}
 		elif sort_by == 'rating':
-			rating=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			rating=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('user_quiz_points__points')).order_by('-rating').annotate(count=Count('user_quiz_points'))
 			context={'quizes':rating, 'sort':'Best Rated'}
    # Ovo ima veze sa URLovima u html templateu, iz urla čitam te podatke
 	if request.method == 'GET':
 		if request.GET.get('sort') == 'Newest':
-			newest=Quiz.objects.filter(title__icontains=search).order_by('-created').annotate(count=Count('userquizpoints'))
+			newest=Quiz.objects.filter(title__icontains=search).order_by('-created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':newest, 'sort':'Newest'}
 			
 		elif request.GET.get('sort') == 'Oldest':
-			oldest=Quiz.objects.filter(title__icontains=search).order_by('created').annotate(count=Count('userquizpoints'))
+			oldest=Quiz.objects.filter(title__icontains=search).order_by('created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':oldest, 'sort':'Oldest'}
 			
 		elif request.GET.get('sort') == 'Best Rated':
-			rating=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('userquizpoints__points')).order_by('-rating').annotate(count=Count('userquizpoints'))
+			rating=Quiz.objects.filter(title__icontains=search).annotate(rate=Avg('user_quiz_points__points')).order_by('-rating').annotate(count=Count('user_quiz_points'))
 			context={'quizes':rating, 'sort':'Best Rated'}
 
 	paginator = Paginator(context['quizes'], 5)

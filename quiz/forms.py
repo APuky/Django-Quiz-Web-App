@@ -84,7 +84,7 @@ class QuizSolveForm(forms.Form):
 
 class CommentForm(ModelForm):
     class Meta:
-        model = QuizComments
+        model = Quiz_comment
         fields = ['comment']
 
     def __init__(self, *args, **kwargs):
@@ -105,7 +105,7 @@ class ProfileForm(ModelForm):
 
 class ProfileReportForm(ModelForm):
     class Meta:
-        model = ReportedProfile
+        model = Reported_profile
         fields = ['reason']
 
     def __init__(self, *args, **kwargs):

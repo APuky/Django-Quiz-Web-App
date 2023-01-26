@@ -3,15 +3,8 @@ from .models import *
 
 # Register your models here.
 
-
-
 class ChoiceInline(admin.TabularInline):
     model = Choice
-
-class QuestionAdmin(admin.ModelAdmin):
-    inlines = [
-        ChoiceInline
-    ]
 
 class QuestionInline(admin.TabularInline):
     model = Question
@@ -30,7 +23,6 @@ class CommentsAdmin(admin.ModelAdmin):
 class ScoresAdmin(admin.ModelAdmin):
     readonly_fields = ('date',)
 
-
 class CommentReportsAdmin(admin.ModelAdmin):
     list_display =('comment', 'reason')
     readonly_fields = ('reportedby','user','comment','reason')
@@ -44,15 +36,14 @@ class ProfileReportsAdmin(admin.ModelAdmin):
     readonly_fields = ('reportedbyuser','user','reason')
 
 admin.site.register(Quiz, QuizAdmin)
-admin.site.register(Question, QuestionAdmin)
-admin.site.register(UserQuizPoints, ScoresAdmin)
-admin.site.register(QuizComments, CommentsAdmin)
+admin.site.register(User_quiz_points, ScoresAdmin)
+admin.site.register(Quiz_comment, CommentsAdmin)
 
 admin.site.register(Profile)
-admin.site.register(ReportedComments, CommentReportsAdmin)
-admin.site.register(ReportedQuiz, QuizReportsAdmin)
+admin.site.register(Reported_comment, CommentReportsAdmin)
+admin.site.register(Reported_quiz, QuizReportsAdmin)
 
-admin.site.register(ReportedProfile, ProfileReportsAdmin)
+admin.site.register(Reported_profile, ProfileReportsAdmin)
 
 admin.site.site_url = '/home'
 

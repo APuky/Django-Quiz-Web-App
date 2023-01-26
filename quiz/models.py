@@ -24,14 +24,13 @@ class Quiz(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     rating = models.IntegerField(default=0)
 
-
     def __str__(self):
         return self.title
     
     class Meta:
         verbose_name_plural = "Quizes"
 
-class UserQuizRelation(models.Model):
+class User_quiz_relation(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     like = models.IntegerField(default=0)
@@ -51,7 +50,7 @@ class Choice(models.Model):
     def __str__(self):
         return self.choice
 
-class UserQuizPoints(models.Model):
+class User_quiz_points(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     points = models.IntegerField()
@@ -63,7 +62,7 @@ class UserQuizPoints(models.Model):
     class Meta:
         verbose_name_plural = "User quiz points"
 
-class QuizComments(models.Model):
+class Quiz_comment(models.Model):
     comment = models.CharField(max_length=160, blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
@@ -73,22 +72,22 @@ class QuizComments(models.Model):
     def __str__(self):
         return self.comment
 
-class UserCommentRelation(models.Model):
+class User_comment_relation(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comment = models.ForeignKey(QuizComments, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Quiz_comment, on_delete=models.CASCADE)
     like = models.IntegerField(default=0)
 
 
-class ReportedComments(models.Model):
+class Reported_comment(models.Model):
     reportedby = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reportedby', default=1)
     user =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comment = models.ForeignKey(QuizComments, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Quiz_comment, on_delete=models.CASCADE)
     reason = models.CharField(max_length=160, default='Reason')
 
     def __str__(self):
         return self.comment.comment
 
-class ReportedQuiz(models.Model):
+class Reported_quiz(models.Model):
     reportedbyuser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reportedbyuser', default=1)
     user =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
@@ -105,8 +104,7 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
-
-class ReportedProfile(models.Model):
+class Reported_profile(models.Model):
     reportedbyuser = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile_reported_by', default=1)
     user =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     reason = models.CharField(max_length=160, default='Reason')
