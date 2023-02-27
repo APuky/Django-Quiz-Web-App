@@ -3,33 +3,23 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import *
 from .models import *
-
 from django.contrib import messages
 from django.forms import formset_factory
-
 from django.contrib.auth.decorators import login_required
-
 from django.db.models import Count, Avg
-
 from django.core.paginator import Paginator
-
 from django.http import HttpResponseBadRequest, JsonResponse
-
 import json
-
 from django.forms.models import model_to_dict
-
 
 from .functions import *
 
 def homePage(request):
 	popular_quizes = Quiz.objects.all().annotate(count=Count('user_quiz_points')).order_by('-count')[:5]
 	newest_quizes = Quiz.objects.all().order_by('-created')[:5]
-	best_rated_quizes = Quiz.objects.all().annotate(rate=Avg('user_quiz_points__points')).order_by('-rating')[:5]
+	best_rated_quizes = Quiz.objects.all().order_by('-rating')[:5]
 	context = {'popular': popular_quizes, 'newest':newest_quizes, 'best':best_rated_quizes}
 	return render(request, 'quiz/home.html', context)
-
-
 
 def quizPage(request,pk):
 	quiz = Quiz.objects.get(id=pk)
@@ -40,8 +30,8 @@ def quizPage(request,pk):
 
 	##Add the avatar image of the user to the comments queryset
 	for comment in comments:
-		data = Profile.objects.get(user=comment.user)
-		comment.avatar = data.avatar
+		profile_data = Profile.objects.get(user=comment.user)
+		comment.avatar = profile_data.avatar
 
 	paginator = Paginator(comments, 5)
 	page_number = request.GET.get('page')
@@ -60,7 +50,6 @@ def quizPage(request,pk):
 
 
 	is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-	print(request)
 	if is_ajax:
 		if request.method == 'POST':
 			data = json.load(request)
@@ -243,42 +232,39 @@ def userLogout(request):
 
 @login_required
 def createQuiz(request):
-	questionFormset = formset_factory(QuizCreateForm, extra=20)
+	questionFormset = formset_factory(QuestionsForm, extra=20)
+
 	if request.method == 'POST':
 		quiznewform=CreateQuizForm(request.POST)
 		quizformset=questionFormset(request.POST)
 
 		if quiznewform.is_valid():
-			#formData = quizform.cleaned_data
-			obj = quiznewform.save(commit=False)
-			obj.created_by = request.user
+			quiz_instance = quiznewform.save(commit=False)
+			quiz_instance.created_by = request.user
 
-			#CHECK IF THE USER PUT IN THE CHOICE THAT HE SELECTED AS CORRECT
 			for form in quizformset:
+
 				if form.is_valid():
-					print("Checking")
 					data = form.cleaned_data
 					answer = data.get('correct_answer')
-					question = Question(text=data.get('Questiontext'), quiz=obj)
-
+					question = Question(text=data.get('Questiontext'), quiz=quiz_instance)
+					
 					for i in range(1,5):
 						if i == int(answer):
 							choice = Choice(choice=data.get(f'choice{i}'), is_right=True, question=question)
 							if choice.choice.strip()=='':
 								messages.add_message(request, messages.ERROR, f'You marked an answer as correct but did not provide one!')
 								context={'quizformset':quizformset, 'quiznewform':quiznewform}
-								return render(request, 'quiz/createquiz.html', context)
-							
-			obj.save()
+								return render(request, 'quiz/createquiz.html', context)	
+
+			quiz_instance.save()
 
 			for form in quizformset:
 				if form.is_valid():
 					data = form.cleaned_data
 					answer = data.get('correct_answer')
-					
-					question = Question(text=data.get('Questiontext'), quiz=obj)
+					question = Question(text=data.get('Questiontext'), quiz=quiz_instance)
 					question.save()
-
 					for i in range(1,5):
 						if i == int(answer):
 							choice = Choice(choice=data.get(f'choice{i}'), is_right=True, question=question)
@@ -292,19 +278,18 @@ def createQuiz(request):
 		else:
 			for error in quiznewform.errors:
 				if error == 'title':
-					messages.add_message(request, messages.ERROR, f'A quiz already exists with the same title!')
+					messages.add_message(request, messages.ERROR, f'A quiz with the same title already exists!')
 				else:
 					messages.add_message(request, messages.ERROR, f'Unexpected error, make sure all the required fields are filled.')
 			context = {'quizformset':quizformset, 'quiznewform':quiznewform}
 			return render(request, 'quiz/createquiz.html', context)	
 			
-		return redirect('quiz', pk=obj.id)
+		return redirect('quiz', pk=quiz_instance.id)
 
 	
 	else:
 		quiznewform=CreateQuizForm()
 		quizformset=questionFormset()
-
 
 	context = {'quizformset':quizformset, 'quiznewform':quiznewform}
 	return render(request, 'quiz/createquiz.html', context)
@@ -328,20 +313,13 @@ def deleteQuiz(request,pk):
 
 
 def solveQuizPage(request, pk):
-
-	
 	if request.method == 'POST':
-		#print(request.POST)
 		choices = Choice.objects.filter(question__quiz_id=pk)
-		
 		quiz = Quiz.objects.get(id=pk)
 		questions = Question.objects.filter(quiz=pk)
-
-
-		#print(questions)
 		score=0
-		
 		for pair in request.POST.items():
+			print(pair)
 			#pair[0] je question id, pair[1] je choice id
 			if pair[0].isnumeric() and pair[1].isnumeric():
 				question = Question.objects.get(id=int(pair[0]))
@@ -357,18 +335,16 @@ def solveQuizPage(request, pk):
 		messages.add_message(request, messages.SUCCESS, f'You scored {score}/{questions.count()} points!')
 
 		return redirect('quiz', pk=pk)
-
-	else:
-		pass
 	
 	quiz = Quiz.objects.get(id=pk)
 	name = quiz.title
 	questions = Question.objects.filter(quiz=pk)
-	choices = Choice.objects.filter(question__quiz_id=pk)
+	choices = Choice.objects.filter(question__quiz=pk)
+	#for loop služi samo za davanje rednog broja pitanjima
 	question_number=questions.first().id - 1
 	for question in questions:
 		question.number = question.id - question_number
-	context = {'quiz': quiz, 'questions':questions, 'choices':choices, 'form1':QuizSolveForm, 'number':question_number}
+	context = {'quiz': quiz, 'questions':questions, 'choices':choices}
 	return render(request, 'quiz/solve_quiz.html', context)
 
 
@@ -457,7 +433,7 @@ def quizes(request, category):
 	
 	if request.method == 'POST':
 		sort_by=request.POST['sort']
-		print(request.POST['sort'])
+
 		if sort_by == 'popular':
 			popular=Quiz.objects.annotate(count=Count('user_quiz_points')).order_by('-count').filter(category=category)
 			context={'quizes':popular, 'search':'Popular'}

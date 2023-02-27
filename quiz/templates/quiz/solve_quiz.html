@@ -1,6 +1,7 @@
 {%extends './basetemp.html' %}
 {% block title %}Solve{% endblock %}
 {% block content %}
+
   <div class="centered">
     <div style="margin: auto; width:50%; text-align: center;">
       <h1 class="question-text">{{quiz.title}}</h1>
@@ -14,7 +15,7 @@
             {% for choice in choices %} 
               {% if choice.question == question %}
                 <div class="form-check" style="padding-left: 0;">
-                  <input type="radio" id="{{choice}}" value="{{choice.id}}" name={{question.id}}>
+                  <input type="radio" id="{{choice}}" value="{{choice.id}}" name="{{question.id}}">
                   <label for="{{choice}}" id="{{choice}}label">{{choice}}</label>
                 </div>
               {% endif %}
@@ -25,6 +26,6 @@
       <div style="margin: auto; width: 50%; text-align: center;">
         <input class="btn btn-primary" type="submit" name="Submit">
       </div>
-  </div>
     </form>
+   </div>
 {% endblock %}

@@ -231,45 +231,36 @@
         </div>
       </div>
     </div>
+
 {% endblock %}
 {% block javascript %}
   <script>
-
     const thisurl = "{% url 'quiz' quiz.id %}";
 
     function addcomment(id){
       localStorage.setItem('commentid', id);
-      console.log(localStorage.getItem('commentid'))
     }
 
     function callreportcomment(){
       commentid = localStorage.getItem('commentid')
       reason = document.getElementById('comment-report-reason')
-      console.log(reason.value)
       const data = {
         commentid : commentid,
         reason : reason.value
-
       }
-      console.log(data)
       report(thisurl, data)
-
     }
 
     function callreportquiz(){
       reason = document.getElementById('quiz-report-reason')
-      console.log(reason.value)
       const data = {
         reason : reason.value
       }
-      console.log(data)
       report(thisurl, data)
     }
     
-
     function commentvoting(id, vote){
       const data = {
-        user : "{{ request.user.id }}",
         commentid : id,
         vote: vote,
       }
@@ -280,7 +271,6 @@
 
     function quizvoting(id, vote){
       const data = {
-        user : "{{ request.user.id }}",
         vote: vote,
       }
       getData(thisurl,id)

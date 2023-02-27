@@ -48,7 +48,7 @@ class CreateQuizForm(ModelForm):
 
 
 
-class QuizCreateForm(forms.Form):
+class QuestionsForm(forms.Form):
     Correct_Choice = (
         ("1", "Choice 1"),
         ("2", "Choice 2"),
@@ -68,18 +68,6 @@ class QuizCreateForm(forms.Form):
     choice3.widget.attrs.update({'class':'form-control'})
     choice4.widget.attrs.update({'class':'form-control'})
     correct_answer.widget.attrs.update({'class':'form-control'})
-
-
-class QuizSolveForm(forms.Form):
-    choice = (
-        (0, "A"),
-        (1, "B"),
-        (2, "C"),
-        (3, "D"),
-    )
-    answer = forms.ChoiceField(choices = choice, label='Which is the correct answer?')
-
-    answer.widget.attrs.update({'class':'form-select-sm'})
 
 
 class CommentForm(ModelForm):

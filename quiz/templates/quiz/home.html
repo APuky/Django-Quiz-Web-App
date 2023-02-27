@@ -9,9 +9,10 @@
 {% endfor %}
 <div class="p-5 text-center bg-primary text-white">
     <h1 class="mb-3">Welcome to QuizIT!</h1>
-    <h4 class="mb-3 text-dark">Starting solving quizes down below:</h4>
+    <h4 class="mb-3 text-dark">Starting solving quizzes down below:</h4>
     <a class="btn btn-primary" href="{% url 'quizsearch' %}" role="button">Or search for a specific quiz</a>
 </div>
+
 
 <div class="container">
   <div class="row">
@@ -21,7 +22,7 @@
             Featured
         </div>
         <div class="card-body">
-            <h5 class="card-title">Best Rated Quizes</h5>
+            <h5 class="card-title">Best Rated Quizzes</h5>
             <hr>
              {% for quiz in best%}
              <img
@@ -36,7 +37,7 @@
             {% endfor %}
         </div>
         <div class="card-footer text-muted">
-            <a href="{% url 'quizsearch' %}?sort=Best Rated" class="btn btn-primary">All Best Rated Quizes</a>
+            <a href="{% url 'quizsearch' %}?sort=Best Rated" class="btn btn-primary">All Best Rated Quizzes</a>
         </div>
         </div>
     </div>
@@ -46,7 +47,7 @@
             Featured
         </div>
         <div class="card-body">
-            <h5 class="card-title">Most Popular Quizes</h5>
+            <h5 class="card-title">Most Popular Quizzes</h5>
             <hr>
              {% for quiz in popular%}
              <img
@@ -61,7 +62,7 @@
             {% endfor %}
         </div>
         <div class="card-footer text-muted">
-            <a href="{% url 'quizsearch' %}?sort=Popular" class="btn btn-primary">All Most Popular Quizes</a>
+            <a href="{% url 'quizsearch' %}?sort=Popular" class="btn btn-primary">All Most Popular Quizzes</a>
         </div>
         </div>
     </div>
@@ -71,7 +72,7 @@
             Featured
         </div>
        <div class="card-body">
-            <h5 class="card-title">Newly Made Quizes</h5>
+            <h5 class="card-title">Newly Made Quizzes</h5>
             <hr>
              {% for quiz in newest%}
              <img
@@ -86,7 +87,7 @@
             {% endfor %}
         </div>
         <div class="card-footer text-muted">
-            <a href="{% url 'quizsearch' %}?sort=Newest" class="btn btn-primary">All Newest Quizes</a>
+            <a href="{% url 'quizsearch' %}?sort=Newest" class="btn btn-primary">All Newest Quizzes</a>
         </div>
         </div>
     </div>

@@ -3,9 +3,6 @@ from .models import *
 
 # Register your models here.
 
-class ChoiceInline(admin.TabularInline):
-    model = Choice
-
 class QuestionInline(admin.TabularInline):
     model = Question
 
@@ -46,6 +43,3 @@ admin.site.register(Reported_quiz, QuizReportsAdmin)
 admin.site.register(Reported_profile, ProfileReportsAdmin)
 
 admin.site.site_url = '/home'
-
-
-

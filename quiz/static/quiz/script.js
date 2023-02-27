@@ -1,14 +1,5 @@
 const collection = document.getElementById("wrapper").children;
 
-
-function makeRequired1(x) {
-    let control = collection[x].getElementsByClassName("form-control");
-    for (let j = 0; j < 6; j++) {
-        control[j].required = true
-  }
-}
-
-
 function makeRequired(x) {
     let control = collection[x].getElementsByClassName("form-control");
     for (let j = 0; j < 6; j++) {
@@ -19,11 +10,9 @@ function makeRequired(x) {
   }
 }
 
-//Makes all fields in the first 5 forms required
 for (let i = 0; i < 5; i++) {
       makeRequired(i)
   }
-
 
 let counter=5
 
@@ -48,17 +37,12 @@ function getData(url, id) {
         })
     .then(response => response.json())
     .then(data => {
-    
-
-
     if (data.comments.find(comment => comment.id == id)){
         let commentrating = data.comments.find(comment => comment.id == id)['rating']
         document.getElementById('comment-'+ id).innerHTML = commentrating
     }
-
     let quizrating = data.quiz['rating']
     document.getElementById('quizrating').innerHTML = quizrating
-    
 });
 }
 
@@ -92,42 +76,21 @@ function updateData(url, payload) {
         body: JSON.stringify({payload: payload})
     })
     .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        });
 }
 
-// Not in use
-function updateQuizData(url, payload) {
-    fetch(url, {
-        method: "PUT",
-        credentials: "same-origin",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": getCookie("csrftoken"),  // don't forget to include the 'getCookie' function
-        },
-        body: JSON.stringify({payload: payload})
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        });
-}
+
 
 
 function report(url, payload){
-fetch(url, {
-  method: "POST",
-  credentials: "same-origin",
-  headers: {
-    "X-Requested-With": "XMLHttpRequest",
-    "X-CSRFToken": getCookie("csrftoken"),
-  },
-  body: JSON.stringify({payload: payload})
-})
-.then(response => response.json())
-.then(data => {
-  console.log(data);
-});
+    fetch(url, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({payload: payload})
+    })
+    .then(response => response.json())
 }
 
