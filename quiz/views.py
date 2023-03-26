@@ -294,14 +294,15 @@ def createQuiz(request):
 	context = {'quizformset':quizformset, 'quiznewform':quiznewform}
 	return render(request, 'quiz/createquiz.html', context)
 
-
+@login_required
 def deleteQuizPage(request, pk):
 	quiz=Quiz.objects.get(id=pk)
 	if request.user == quiz.created_by:
 		return render(request, 'quiz/deletequiz.html', context={'quiz':quiz})
 	else:
 		return redirect('quiz', pk=quiz.id)
-	
+
+@login_required
 def deleteQuiz(request,pk):
 	quiz=Quiz.objects.get(id=pk)
 	if request.user == quiz.created_by:
@@ -453,7 +454,6 @@ def quizes(request, category):
 		#MOGUĆE POBOLJŠAT
 	
 	if request.method == 'GET':
-
 		if request.GET.get('search') == 'Newest':
 			newest=Quiz.objects.filter(category=category).order_by('-created').annotate(count=Count('user_quiz_points'))
 			context={'quizes':newest, 'search':'Newest'}
@@ -516,3 +516,5 @@ def quizSearch(request):
 	context['searchdata']=page_obj
 	context['query']=search
 	return render(request, 'quiz/quizes_search.html', context)
+
+	
